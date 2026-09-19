@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | Humanitarian Command</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .drop-shadow-glow {
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        .scanning-line {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanning-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .pulse-ring {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .5; transform: scale(1.05); }
+        }
+        .map-gradient-overlay {
+            background: radial-gradient(circle at center, transparent 0%, #0e1320 80%);
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #090e1b; }
+        ::-webkit-scrollbar-thumb { background: #3b494c; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#849396",
+                        "inverse-on-surface": "#2b303e",
+                        "on-tertiary-fixed": "#002108",
+                        "on-surface": "#dee2f5",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#006727",
+                        "on-primary": "#00363d",
+                        "surface-container-lowest": "#090e1b",
+                        "primary": "#c3f5ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-surface": "#dee2f5",
+                        "surface-container-high": "#252a38",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-low": "#161b29",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline-variant": "#3b494c",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-dim": "#0e1320",
+                        "primary-fixed": "#9cf0ff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#003912",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0e1320",
+                        "surface-variant": "#303443",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-highest": "#303443",
+                        "surface-bright": "#343948",
+                        "primary-container": "#00e5ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container": "#1a1f2d",
+                        "tertiary-container": "#49ed72",
+                        "error-container": "#93000a",
+                        "on-background": "#dee2f5",
+                        "secondary-container": "#0566d9",
+                        "secondary": "#adc6ff",
+                        "tertiary": "#b1ffb5",
+                        "on-primary-container": "#00626e",
+                        "tertiary-fixed": "#69ff87",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "inverse-primary": "#006875",
+                        "surface-tint": "#00daf3",
+                        "background": "#0e1320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "container-gap": "24px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-label-sm": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-data-md": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "mono-data-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-8">
+<h1 class="font-display-lg text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</h1>
+<div class="hidden md:flex items-center bg-surface-container/50 px-4 py-2 rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-outline text-sm mr-2">search</span>
+<input class="bg-transparent border-none text-mono-data-md text-on-surface focus:ring-0 w-64 placeholder:text-outline/50 uppercase" placeholder="QUERY GRID COORDINATES..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center gap-4 border-r border-outline-variant/30 pr-6">
+<div class="flex flex-col items-end">
+<span class="font-mono-label-sm text-primary uppercase">OPS STATUS: ALPHA</span>
+<span class="font-mono-label-sm text-tertiary-fixed-dim">ENCRYPTED LINK ACTIVE</span>
+</div>
+<div class="w-2 h-2 rounded-full bg-tertiary-container shadow-[0_0_8px_#49ed72]"></div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">network_check</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">language</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-20">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col bg-surface-container-lowest/80 backdrop-blur-md border-r border-outline-variant/20 w-[260px]">
+<div class="p-6 flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container font-bold">PX</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary leading-tight">PHX-CMD</div>
+<div class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest text-outline">Sector 7G</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-4 space-y-1">
+<!-- Nav Item: Active (Rescue Ops for Humanitarian Context) -->
+<a class="flex items-center gap-4 text-primary-container border-l-4 border-primary-container bg-primary-container/10 py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Rescue Ops</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Command</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Smart Map</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Mesh Net</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Aid Center</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Infrastructure</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Resources</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline py-4 px-6 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Analytics</span>
+</a>
+</div>
+<div class="p-6 space-y-4">
+<button class="w-full bg-primary-container text-on-primary-container font-mono-label-sm py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">broadcast_on_home</span>
+                    INITIATE BROADCAST
+                </button>
+<div class="flex justify-between border-t border-outline-variant/20 pt-4">
+<button class="text-outline hover:text-primary transition-colors flex flex-col items-center">
+<span class="material-symbols-outlined">support_agent</span>
+<span class="text-[10px] mt-1 uppercase font-bold">Support</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors flex flex-col items-center">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[10px] mt-1 uppercase font-bold">Logs</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-[260px] flex-1 relative bg-surface-container-lowest overflow-hidden">
+<!-- World Map Background Simulation -->
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&amp;w=2000')] bg-cover bg-center opacity-20 grayscale"></div>
+<div class="absolute inset-0 map-gradient-overlay"></div>
+<!-- SVG Overlay for Animated Routes -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 1000 600">
+<!-- Route: UAE to Gaza (Flight) -->
+<path class="opacity-60" d="M600,300 Q650,250 720,280" fill="none" stroke="#00e5ff" stroke-dasharray="8 4" stroke-width="2">
+<animate attributename="stroke-dashoffset" dur="1s" from="12" repeatcount="indefinite" to="0"></animate>
+</path>
+<circle class="pulse-ring" cx="720" cy="280" fill="#00e5ff" r="4"></circle>
+<!-- Route: Germany to Ukraine (Convoy) -->
+<path class="opacity-80" d="M480,180 L520,160" fill="none" stroke="#3ce36a" stroke-dasharray="4 4" stroke-width="3">
+<animate attributename="stroke-dashoffset" dur="2s" from="8" repeatcount="indefinite" to="0"></animate>
+</path>
+<circle class="pulse-ring" cx="520" cy="160" fill="#3ce36a" r="4"></circle>
+<!-- Ship Route: Saudi Arabia to Turkey -->
+<path class="opacity-40" d="M620,320 Q640,280 610,230" fill="none" stroke="#adc6ff" stroke-width="2">
+<animate attributename="stroke-dashoffset" dur="10s" from="100" repeatcount="indefinite" to="0"></animate>
+</path>
+</svg>
+<!-- Map Coordinates HUD -->
+<div class="absolute bottom-10 right-10 flex flex-col items-end pointer-events-none opacity-60">
+<span class="font-mono-data-md text-primary tracking-widest">LAT: 31.5017° N | LON: 34.4668° E</span>
+<span class="font-mono-data-md text-outline">ELEV: 24M | ACCURACY: 0.04m</span>
+</div>
+</div>
+<!-- Dashboard Overlay -->
+<div class="relative z-10 p-margin-desktop grid grid-cols-12 gap-6 h-full content-start overflow-y-auto">
+<!-- TOP STATS ROW -->
+<div class="col-span-12 lg:col-span-3 glass-panel rounded-xl p-6 border-l-4 border-primary-container">
+<div class="flex justify-between items-start mb-4">
+<span class="font-mono-label-sm text-outline uppercase tracking-wider">Total Active Routes</span>
+<span class="material-symbols-outlined text-primary-container">flight_takeoff</span>
+</div>
+<div class="text-display-lg font-bold text-on-surface">1,482</div>
+<div class="mt-2 flex items-center gap-2">
+<span class="text-tertiary-fixed-dim text-xs font-bold">+12.4%</span>
+<span class="text-outline text-[10px] uppercase">vs previous 24h</span>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-3 glass-panel rounded-xl p-6 border-l-4 border-tertiary-container">
+<div class="flex justify-between items-start mb-4">
+<span class="font-mono-label-sm text-outline uppercase tracking-wider">Aid Delivered (MT)</span>
+<span class="material-symbols-outlined text-tertiary-container">package_2</span>
+</div>
+<div class="text-display-lg font-bold text-on-surface">42,900</div>
+<div class="mt-2 flex items-center gap-2">
+<progress class="flex-1 h-1 bg-surface-variant rounded-full overflow-hidden" max="100" value="78"></progress>
+<span class="text-tertiary-fixed-dim text-xs font-bold">78% Goal</span>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-6 glass-panel rounded-xl p-4 flex items-center justify-between overflow-hidden">
+<div class="flex gap-8 px-4">
+<div class="flex flex-col items-center">
+<div class="p-3 rounded-full bg-error/10 border border-error/30 text-error mb-2">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<span class="font-mono-label-sm text-outline uppercase text-[10px]">Food</span>
+<span class="font-bold text-on-surface">18.2k</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="p-3 rounded-full bg-primary/10 border border-primary/30 text-primary mb-2">
+<span class="material-symbols-outlined">medical_services</span>
+</div>
+<span class="font-mono-label-sm text-outline uppercase text-[10px]">Medical</span>
+<span class="font-bold text-on-surface">12.5k</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="p-3 rounded-full bg-secondary/10 border border-secondary/30 text-secondary mb-2">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<span class="font-mono-label-sm text-outline uppercase text-[10px]">Water</span>
+<span class="font-bold text-on-surface">9.1k</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="p-3 rounded-full bg-tertiary/10 border border-tertiary/30 text-tertiary mb-2">
+<span class="material-symbols-outlined">home</span>
+</div>
+<span class="font-mono-label-sm text-outline uppercase text-[10px]">Shelter</span>
+<span class="font-bold text-on-surface">3.1k</span>
+</div>
+</div>
+<!-- AI Pulse Animation -->
+<div class="flex items-center gap-4 bg-primary/5 p-4 rounded-lg border border-primary/10">
+<div class="relative w-8 h-8 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary-container/20 rounded-full animate-ping"></div>
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase font-bold">AI Logistics Optimizer</div>
+<div class="text-xs text-primary-fixed-dim font-mono-data-md">Rerouting Convoy Beta-9...</div>
+</div>
+</div>
+</div>
+<!-- LEFT COLUMN: Live Tracking Dashboard -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="glass-panel rounded-xl overflow-hidden flex flex-col h-[500px]">
+<div class="bg-surface-variant/30 p-4 border-b border-outline-variant/30 flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-surface text-sm uppercase tracking-widest">Active Delivery Stream</h2>
+<span class="text-[10px] bg-error/20 text-error px-2 py-1 rounded animate-pulse">LIVE FEED</span>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<!-- Delivery Card 1 -->
+<div class="p-4 rounded-lg bg-surface-container-high/50 border border-outline-variant/20 relative scanning-line">
+<div class="flex justify-between mb-2">
+<span class="font-mono-label-sm text-primary uppercase">Route PX-402</span>
+<span class="text-[10px] text-outline uppercase">Eta: 42m</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-sm">local_shipping</span>
+</div>
+<div class="flex-1">
+<div class="text-xs font-bold text-on-surface uppercase">Convoy "Hope"</div>
+<div class="text-[10px] text-outline">Germany → Kyiv Center</div>
+</div>
+<div class="text-right">
+<div class="text-xs text-tertiary-fixed-dim font-bold">92%</div>
+</div>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-fixed shadow-[0_0_8px_rgba(60,227,106,0.6)]" style="width: 92%"></div>
+</div>
+</div>
+<!-- Delivery Card 2 -->
+<div class="p-4 rounded-lg bg-surface-container-high/50 border border-outline-variant/20">
+<div class="flex justify-between mb-2">
+<span class="font-mono-label-sm text-primary uppercase">Route UAE-81</span>
+<span class="text-[10px] text-outline uppercase">In Transit</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-sm">flight</span>
+</div>
+<div class="flex-1">
+<div class="text-xs font-bold text-on-surface uppercase">Airbridge Delta</div>
+<div class="text-[10px] text-outline">Abu Dhabi → Gaza Border</div>
+</div>
+<div class="text-right">
+<div class="text-xs text-secondary-fixed-dim font-bold">45%</div>
+</div>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container shadow-[0_0_8px_rgba(5,102,217,0.6)]" style="width: 45%"></div>
+</div>
+</div>
+<!-- Delivery Card 3 -->
+<div class="p-4 rounded-lg bg-surface-container-high/50 border border-outline-variant/20 opacity-60">
+<div class="flex justify-between mb-2">
+<span class="font-mono-label-sm text-primary uppercase">Route KSA-12</span>
+<span class="text-[10px] text-error uppercase">Delayed: Port Congestion</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded bg-error/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-sm">directions_boat</span>
+</div>
+<div class="flex-1">
+<div class="text-xs font-bold text-on-surface uppercase">Sea Freight 01</div>
+<div class="text-[10px] text-outline">Jeddah → Iskenderun</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Sector Analytics & Alerts -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-2 gap-6">
+<!-- Regional Focus Bento Box -->
+<div class="col-span-2 glass-panel rounded-xl p-6 relative overflow-hidden group h-[200px]">
+<div class="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="A highly detailed close-up satellite view of a shipping terminal and humanitarian storage facility at night. The scene is illuminated with sharp tactical lighting, showing orderly rows of shipping containers and white relief trucks. The overall color palette consists of dark navy and neon cyan accents, creating a high-stakes tactical glassmorphism atmosphere that feels advanced and precise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2jNZN6LroOkNntBmU43RpfEQ71O3rsoOIQ8AHPqIIeOZWiOewYQ_bhAzKBV7VZW_zUwFl0bKv8mHFPGyB31dfG8KMLHpCZ6-3it2ehJ3ZW4SqE65NHgPVk8js9pRx5kcfWrL2pFUIOCFbuOgCAKEmuhHzXnmdJmRetVZ_OSsEK2_9NiW4h4QhVCAJ6blsvAp63azBflz6tIq4GOCfF87tgAZ34y9JEuryPBUc_S9T13WQ5KswmQ-0BfhyMatOToV-gcongsNJn6Bq"/>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Critical Focus: East Mediterranean</h3>
+<p class="text-body-md text-outline-variant max-w-lg mb-4">Port Iskenderun and Gaza landing zones are experiencing high volume. Automated routing systems are prioritizing medical supply flights for the next 06:00 UTC window.</p>
+<div class="flex gap-4">
+<span class="bg-surface-container px-3 py-1 rounded text-[10px] font-bold border border-outline-variant/30 uppercase">Priority: Highest</span>
+<span class="bg-surface-container px-3 py-1 rounded text-[10px] font-bold border border-outline-variant/30 uppercase">Weather: Stable</span>
+</div>
+</div>
+</div>
+<!-- Threat Meter / Capacity Gauge -->
+<div class="col-span-1 glass-panel rounded-xl p-6">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-mono-label-sm text-outline uppercase tracking-widest">Network Load</h4>
+<span class="material-symbols-outlined text-primary">data_usage</span>
+</div>
+<div class="flex items-end gap-2 h-32">
+<div class="flex-1 bg-surface-container-high rounded-sm relative group">
+<div class="absolute bottom-0 w-full bg-tertiary-container/40 rounded-sm" style="height: 30%"></div>
+<div class="absolute bottom-0 w-full h-1 bg-tertiary shadow-[0_0_10px_#3ce36a]" style="bottom: 30%"></div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-sm relative group">
+<div class="absolute bottom-0 w-full bg-tertiary-container/40 rounded-sm" style="height: 45%"></div>
+<div class="absolute bottom-0 w-full h-1 bg-tertiary shadow-[0_0_10px_#3ce36a]" style="bottom: 45%"></div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-sm" style="height: 75%"></div>
+<div class="absolute bottom-0 w-full h-1 bg-primary-container shadow-[0_0_10px_#00daf3]" style="bottom: 75%"></div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-sm relative group">
+<div class="absolute bottom-0 w-full bg-error-container/40 rounded-sm" style="height: 90%"></div>
+<div class="absolute bottom-0 w-full h-1 bg-error shadow-[0_0_10px_#ffb4ab]" style="bottom: 90%"></div>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-sm relative group">
+<div class="absolute bottom-0 w-full bg-primary-container/40 rounded-sm" style="height: 60%"></div>
+<div class="absolute bottom-0 w-full h-1 bg-primary-container shadow-[0_0_10px_#00daf3]" style="bottom: 60%"></div>
+</div>
+</div>
+<div class="mt-4 flex justify-between font-mono-data-md text-[10px] text-outline uppercase">
+<span>00:00</span>
+<span>06:00</span>
+<span>12:00</span>
+<span>18:00</span>
+<span>NOW</span>
+</div>
+</div>
+<!-- Aid Category Distribution -->
+<div class="col-span-1 glass-panel rounded-xl p-6">
+<h4 class="font-mono-label-sm text-outline uppercase tracking-widest mb-6">Distribution Map</h4>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<div class="flex-1 text-xs font-mono-data-md uppercase text-on-surface">Medical Logistics</div>
+<div class="text-xs font-bold">42%</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div>
+<div class="flex-1 text-xs font-mono-data-md uppercase text-on-surface">Nutritional Supply</div>
+<div class="text-xs font-bold">31%</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<div class="flex-1 text-xs font-mono-data-md uppercase text-on-surface">Clean Water Inf.</div>
+<div class="text-xs font-bold">18%</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<div class="flex-1 text-xs font-mono-data-md uppercase text-on-surface">Emergency Shelter</div>
+<div class="text-xs font-bold">9%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-4 px-margin-desktop flex justify-between items-center bg-surface-dim border-t border-outline-variant/10 z-50">
+<div class="flex items-center gap-6">
+<span class="font-mono-label-sm text-primary uppercase tracking-tighter">PHOENIX GRID v2.4.0</span>
+<span class="font-mono-data-md text-mono-data-md text-outline">© 2024 PHOENIX GRID TACTICAL SYSTEMS. ENCRYPTED P2P CHANNEL ACTIVE.</span>
+</div>
+<div class="flex items-center gap-8">
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Network Protocol</a>
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100 uppercase" href="#">Terms of Engagement</a>
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100 uppercase" href="#">SLA</a>
+</div>
+</footer>
+<script>
+        // Atmospheric Micro-interactions
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+                
+                // Subtle lift effect
+                card.style.transition = 'transform 0.1s ease-out';
+                card.style.transform = `perspective(1000px) rotateX(${(y - rect.height/2) / 100}deg) rotateY(${-(x - rect.width/2) / 100}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'transform 0.5s ease';
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+            });
+        });
+
+        // Simulating Real-time Coordinates Update
+        setInterval(() => {
+            const coords = document.querySelector('.font-mono-data-md.text-primary');
+            if (coords) {
+                const lat = (31.5 + Math.random() * 0.001).toFixed(4);
+                const lon = (34.4 + Math.random() * 0.001).toFixed(4);
+                coords.innerText = `LAT: ${lat}° N | LON: ${lon}° E`;
+            }
+        }, 3000);
+    </script>
+</body></html>

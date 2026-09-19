@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | Secure Access</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .emergency-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        .data-glow {
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+        }
+        .input-glow-focus:focus-within {
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            border-bottom: 2px solid #00e5ff;
+        }
+        .role-card-active {
+            border: 1px solid #00e5ff;
+            background: rgba(0, 229, 255, 0.1);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0a0f1c;
+            overflow-x: hidden;
+        }
+        #map-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#849396",
+                        "inverse-on-surface": "#2b303e",
+                        "on-tertiary-fixed": "#002108",
+                        "on-surface": "#dee2f5",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#006727",
+                        "on-primary": "#00363d",
+                        "surface-container-lowest": "#090e1b",
+                        "primary": "#c3f5ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-surface": "#dee2f5",
+                        "surface-container-high": "#252a38",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-low": "#161b29",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline-variant": "#3b494c",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-dim": "#0e1320",
+                        "primary-fixed": "#9cf0ff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#003912",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0e1320",
+                        "surface-variant": "#303443",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-highest": "#303443",
+                        "surface-bright": "#343948",
+                        "primary-container": "#00e5ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container": "#1a1f2d",
+                        "tertiary-container": "#49ed72",
+                        "error-container": "#93000a",
+                        "on-background": "#dee2f5",
+                        "secondary-container": "#0566d9",
+                        "secondary": "#adc6ff",
+                        "tertiary": "#b1ffb5",
+                        "on-primary-container": "#00626e",
+                        "tertiary-fixed": "#69ff87",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "inverse-primary": "#006875",
+                        "surface-tint": "#00daf3",
+                        "background": "#0e1320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "container-gap": "24px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-label-sm": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-data-md": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-on-surface selection:bg-primary-container/30">
+<!-- Background Map & Particles -->
+<canvas id="map-canvas"></canvas>
+<!-- Top Bar Placeholder (Visual Only) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/10 backdrop-blur-sm border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<span class="font-display-lg text-[24px] tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</span>
+<span class="px-2 py-0.5 border border-primary-container/40 text-primary-container font-mono-label-sm uppercase rounded">SECURE_AUTH</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-primary-fixed-dim">
+<span class="material-symbols-outlined text-[18px]">network_check</span>
+<span class="font-mono-label-sm">LATENCY: 14ms</span>
+</div>
+<div class="flex items-center gap-2 text-error">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="font-mono-label-sm">LEVEL 4 ALERT</span>
+</div>
+</div>
+</header>
+<main class="min-h-screen flex items-center justify-center pt-24 pb-12 px-margin-mobile">
+<div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+<!-- Left Side: Login Form -->
+<div class="lg:col-span-5 space-y-8">
+<div class="space-y-2">
+<h1 class="font-headline-lg text-headline-lg text-primary">COMMAND AUTHENTICATION</h1>
+<p class="font-body-md text-on-surface-variant max-w-sm">Enter your biometric-linked credentials to access the tactical grid and emergency response systems.</p>
+</div>
+<div class="glass-panel p-8 rounded-xl shadow-[0_8px_32px_rgba(0,229,255,0.05)] border-t-2 border-primary-container">
+<form class="space-y-6" onsubmit="event.preventDefault()">
+<div class="space-y-1">
+<label class="font-mono-label-sm text-outline uppercase tracking-wider ml-1">Operator Identifier</label>
+<div class="relative flex items-center group">
+<span class="material-symbols-outlined absolute left-3 text-outline group-focus-within:text-primary-container transition-colors">account_circle</span>
+<input class="w-full bg-surface-container-lowest/50 border-b-2 border-outline-variant/30 text-on-surface px-10 py-4 focus:outline-none focus:border-primary-container transition-all duration-300 font-mono-data-md" placeholder="PX-774-Kilo" type="text"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="font-mono-label-sm text-outline uppercase tracking-wider ml-1">Secure Passkey</label>
+<div class="relative flex items-center group">
+<span class="material-symbols-outlined absolute left-3 text-outline group-focus-within:text-primary-container transition-colors">lock</span>
+<input class="w-full bg-surface-container-lowest/50 border-b-2 border-outline-variant/30 text-on-surface px-10 py-4 focus:outline-none focus:border-primary-container transition-all duration-300 font-mono-data-md" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between py-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-4 h-4 rounded border-outline-variant bg-surface-container-low text-primary-container focus:ring-primary-container" type="checkbox"/>
+<span class="font-mono-label-sm text-on-surface-variant group-hover:text-on-surface">REMEMBER SESSION</span>
+</label>
+<a class="font-mono-label-sm text-primary-container hover:underline underline-offset-4" href="#">FORGOT ID?</a>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container py-4 font-headline-md text-headline-md rounded shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span>INITIALIZE LINK</span>
+<span class="material-symbols-outlined">bolt</span>
+</button>
+</form>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low/40 border border-outline-variant/20">
+<div class="w-10 h-10 rounded bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container">fingerprint</span>
+</div>
+<div>
+<p class="font-mono-label-sm text-on-surface">MFA REQUIRED</p>
+<p class="font-mono-data-md text-outline text-[12px]">Biometric hardware key must be inserted for Level 3 clearance.</p>
+</div>
+</div>
+</div>
+<!-- Right Side: Role Selection -->
+<div class="lg:col-span-7 space-y-6">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<h2 class="font-headline-md text-headline-md text-primary">SELECT OPERATIONAL ROLE</h2>
+<p class="font-body-md text-on-surface-variant">Access permissions and interface modules will adapt to selected role.</p>
+</div>
+<span class="font-mono-label-sm text-outline border border-outline/20 px-3 py-1 rounded">5 ACTIVE NODES</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Super Admin -->
+<div class="role-card group p-5 glass-panel rounded-xl hover:border-primary-container/50 cursor-pointer transition-all duration-300 relative overflow-hidden" onclick="selectRole(this)">
+<div class="relative z-10 flex flex-col h-full justify-between gap-6">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-surface-container-high rounded-lg text-primary-container">
+<span class="material-symbols-outlined text-[32px]">shield_person</span>
+</div>
+<span class="text-[10px] font-mono-label-sm text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">CLEARANCE: MAX</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface">Super Admin</h3>
+<p class="font-mono-data-md text-on-surface-variant text-[12px] mt-1">Full infrastructure control, network orchestration, and node deployment rights.</p>
+</div>
+</div>
+</div>
+<!-- Emergency Coordinator -->
+<div class="role-card group p-5 glass-panel rounded-xl hover:border-primary-container/50 cursor-pointer transition-all duration-300" onclick="selectRole(this)">
+<div class="flex flex-col h-full justify-between gap-6">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-surface-container-high rounded-lg text-tertiary-fixed-dim">
+<span class="material-symbols-outlined text-[32px]">emergency</span>
+</div>
+<span class="text-[10px] font-mono-label-sm text-tertiary-fixed-dim bg-tertiary/10 px-2 py-1 rounded border border-tertiary/20">ACTIVE OPS</span>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface">Emergency Coordinator</h3>
+<p class="font-mono-data-md text-on-surface-variant text-[12px] mt-1">Real-time incident management, resource allocation, and agency dispatch.</p>
+</div>
+</div>
+</div>
+<!-- Rescue Officer -->
+<div class="role-card group p-5 glass-panel rounded-xl hover:border-primary-container/50 cursor-pointer transition-all duration-300" onclick="selectRole(this)">
+<div class="flex flex-col h-full justify-between gap-6">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-surface-container-high rounded-lg text-secondary">
+<span class="material-symbols-outlined text-[32px]">health_and_safety</span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface">Rescue Officer</h3>
+<p class="font-mono-data-md text-on-surface-variant text-[12px] mt-1">Field-level data access, telemetry tracking, and tactical communication channels.</p>
+</div>
+</div>
+</div>
+<!-- Humanitarian Org -->
+<div class="role-card group p-5 glass-panel rounded-xl hover:border-primary-container/50 cursor-pointer transition-all duration-300" onclick="selectRole(this)">
+<div class="flex flex-col h-full justify-between gap-6">
+<div class="flex justify-between items-start">
+<div class="p-3 bg-surface-container-high rounded-lg text-outline">
+<span class="material-symbols-outlined text-[32px]">handshake</span>
+</div>
+</div>
+<div>
+<h3 class="font-headline-md text-on-surface">Humanitarian Org</h3>
+<p class="font-mono-data-md text-on-surface-variant text-[12px] mt-1">Aid logistics management, supply chain tracking, and shelter reporting.</p>
+</div>
+</div>
+</div>
+<!-- Citizen -->
+<div class="md:col-span-2 role-card group p-5 glass-panel rounded-xl hover:border-primary-container/50 cursor-pointer transition-all duration-300" onclick="selectRole(this)">
+<div class="flex items-center gap-6">
+<div class="p-3 bg-surface-container-high rounded-lg text-primary-fixed">
+<span class="material-symbols-outlined text-[32px]">person</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-on-surface">Citizen Access</h3>
+<p class="font-mono-data-md text-on-surface-variant text-[12px]">Request assistance, view public alerts, and submit community field reports.</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary-container transition-transform group-hover:translate-x-1">arrow_forward</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-center pt-4">
+<p class="font-mono-label-sm text-outline text-[11px] uppercase tracking-[0.2em]">End-to-end encryption active • RSA-4096 • PHOENIX-NET</p>
+</div>
+</div>
+</div>
+</main>
+<footer class="w-full py-6 px-margin-desktop flex flex-col md:flex-row justify-between items-center bg-surface-dim/80 border-t border-outline-variant/10 text-outline">
+<p class="font-mono-data-md text-[11px]">© 2024 PHOENIX GRID TACTICAL SYSTEMS. ENCRYPTED P2P CHANNEL ACTIVE.</p>
+<div class="flex gap-8 mt-4 md:mt-0">
+<a class="font-mono-data-md text-[11px] hover:text-primary-container transition-colors" href="#">NETWORK PROTOCOL</a>
+<a class="font-mono-data-md text-[11px] hover:text-primary-container transition-colors" href="#">TERMS OF ENGAGEMENT</a>
+<a class="font-mono-data-md text-[11px] hover:text-primary-container transition-colors" href="#">SLA</a>
+</div>
+</footer>
+<script>
+        // World Map Network Animation
+        const canvas = document.getElementById('map-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let nodes = [];
+        let connections = [];
+
+        function initCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            nodes = [];
+            for(let i = 0; i < 40; i++) {
+                nodes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    pulse: Math.random() * Math.PI,
+                    isEmergency: Math.random() > 0.9
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            ctx.strokeStyle = 'rgba(0, 229, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            for(let i = 0; i < nodes.length; i++) {
+                let n1 = nodes[i];
+                n1.x += n1.vx;
+                n1.y += n1.vy;
+                
+                if(n1.x < 0 || n1.x > width) n1.vx *= -1;
+                if(n1.y < 0 || n1.y > height) n1.vy *= -1;
+                
+                // Draw nodes
+                ctx.beginPath();
+                ctx.arc(n1.x, n1.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = n1.isEmergency ? 'rgba(255, 180, 171, 0.5)' : 'rgba(0, 229, 255, 0.3)';
+                ctx.fill();
+
+                if(n1.isEmergency) {
+                    n1.pulse += 0.05;
+                    ctx.beginPath();
+                    ctx.arc(n1.x, n1.y, Math.abs(Math.sin(n1.pulse)) * 30, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(255, 180, 171, 0.2)';
+                    ctx.stroke();
+                }
+
+                // Connections
+                for(let j = i + 1; j < nodes.length; j++) {
+                    let n2 = nodes[j];
+                    let dist = Math.sqrt((n1.x - n2.x)**2 + (n1.y - n2.y)**2);
+                    if(dist < 200) {
+                        ctx.beginPath();
+                        ctx.moveTo(n1.x, n1.y);
+                        ctx.lineTo(n2.x, n2.y);
+                        ctx.strokeStyle = `rgba(0, 229, 255, ${0.1 * (1 - dist/200)})`;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        draw();
+
+        // UI Interactions
+        function selectRole(element) {
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.classList.remove('border-primary-container', 'bg-primary-container/10', 'shadow-[0_0_20px_rgba(0,229,255,0.1)]');
+            });
+            element.classList.add('border-primary-container', 'bg-primary-container/10', 'shadow-[0_0_20px_rgba(0,229,255,0.1)]');
+        }
+    </script>
+</body></html>

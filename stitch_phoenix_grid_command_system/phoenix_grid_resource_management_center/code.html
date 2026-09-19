@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | RESOURCE MANAGEMENT</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#849396",
+                    "inverse-on-surface": "#2b303e",
+                    "on-tertiary-fixed": "#002108",
+                    "on-surface": "#dee2f5",
+                    "on-error": "#690005",
+                    "on-tertiary-container": "#006727",
+                    "on-primary": "#00363d",
+                    "surface-container-lowest": "#090e1b",
+                    "primary": "#c3f5ff",
+                    "on-secondary-fixed-variant": "#004395",
+                    "on-primary-fixed-variant": "#004f58",
+                    "secondary-fixed": "#d8e2ff",
+                    "inverse-surface": "#dee2f5",
+                    "surface-container-high": "#252a38",
+                    "on-surface-variant": "#bac9cc",
+                    "surface-container-low": "#161b29",
+                    "primary-fixed-dim": "#00daf3",
+                    "outline-variant": "#3b494c",
+                    "on-secondary-fixed": "#001a42",
+                    "tertiary-fixed-dim": "#3ce36a",
+                    "surface-dim": "#0e1320",
+                    "primary-fixed": "#9cf0ff",
+                    "error": "#ffb4ab",
+                    "on-tertiary": "#003912",
+                    "on-error-container": "#ffdad6",
+                    "on-secondary": "#002e6a",
+                    "surface": "#0e1320",
+                    "surface-variant": "#303443",
+                    "on-primary-fixed": "#001f24",
+                    "on-secondary-container": "#e6ecff",
+                    "surface-container-highest": "#303443",
+                    "surface-bright": "#343948",
+                    "primary-container": "#00e5ff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "surface-container": "#1a1f2d",
+                    "tertiary-container": "#49ed72",
+                    "error-container": "#93000a",
+                    "on-background": "#dee2f5",
+                    "secondary-container": "#0566d9",
+                    "secondary": "#adc6ff",
+                    "tertiary": "#b1ffb5",
+                    "on-primary-container": "#00626e",
+                    "tertiary-fixed": "#69ff87",
+                    "on-tertiary-fixed-variant": "#00531e",
+                    "inverse-primary": "#006875",
+                    "surface-tint": "#00daf3",
+                    "background": "#0e1320"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "32px",
+                    "margin-mobile": "16px",
+                    "container-gap": "24px",
+                    "unit": "4px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "mono-label-sm": ["JetBrains Mono"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "mono-data-md": ["JetBrains Mono"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .backdrop-blur-xl { backdrop-filter: blur(24px); }
+        .drop-shadow-glow { filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6)); }
+        .inner-glow { box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.05); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3b494c; border-radius: 2px; }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(30, 41, 59, 1);
+            backdrop-filter: blur(12px);
+        }
+        .scanning-bar {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(400px); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-8">
+<span class="font-display-lg text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</span>
+<div class="hidden md:flex items-center gap-4 bg-surface-container-low px-4 py-2 rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-mono-label-sm font-mono-label-sm w-64 placeholder:text-outline/50" placeholder="QUERY RESOURCES..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded">network_check</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded">language</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded">settings</button>
+</div>
+<div class="px-4 py-1.5 bg-primary-container/10 border border-primary-container text-primary-container font-mono-label-sm text-mono-label-sm rounded tracking-widest animate-pulse">
+                OPS STATUS: ALPHA
+            </div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col bg-surface-container-lowest/80 backdrop-blur-md border-r border-outline-variant/20 w-[260px] hidden md:flex">
+<div class="p-6 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary-container/20 border border-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-primary leading-tight">PHX-CMD</p>
+<p class="font-mono-label-sm text-mono-label-sm text-outline">Sector 7G</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4">
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 transition-all duration-200 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Command</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 transition-all duration-200 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Smart Map</span>
+</a>
+<a class="flex items-center gap-4 text-primary-container border-l-4 border-primary-container bg-primary-container/10 py-4 px-6" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Resources</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 transition-all duration-200 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Mesh Net</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 transition-all duration-200 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Rescue Ops</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 transition-all duration-200 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Analytics</span>
+</a>
+</nav>
+<div class="p-6">
+<button class="w-full py-3 bg-primary-container text-on-primary-container font-mono-label-sm text-mono-label-sm tracking-widest rounded transition-transform active:scale-95 shadow-[0_0_20px_rgba(0,229,255,0.3)]">
+                INITIATE BROADCAST
+            </button>
+</div>
+<div class="p-4 border-t border-outline-variant/10 flex flex-col gap-2">
+<a class="flex items-center gap-3 text-outline text-mono-label-sm px-2 py-1" href="#">
+<span class="material-symbols-outlined text-[18px]">support_agent</span> Support
+            </a>
+<a class="flex items-center gap-3 text-outline text-mono-label-sm px-2 py-1" href="#">
+<span class="material-symbols-outlined text-[18px]">terminal</span> Logs
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-24 pl-0 md:pl-[260px] min-h-screen bg-surface-container-lowest relative overflow-hidden">
+<!-- Visual Decor -->
+<div class="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 -z-10"></div>
+<div class="p-margin-desktop space-y-container-gap">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-6">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary-fixed mb-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl">inventory_2</span>
+                        RESOURCE MANAGEMENT CENTER
+                    </h1>
+<p class="font-mono-data-md text-mono-data-md text-outline flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                        GLOBAL INVENTORY SYNC ACTIVE | LATENCY: 24ms
+                    </p>
+</div>
+<div class="flex gap-4">
+<div class="glass-card px-6 py-4 rounded-xl flex items-center gap-4 border-l-4 border-l-error">
+<span class="material-symbols-outlined text-error text-3xl">warning</span>
+<div>
+<p class="font-mono-label-sm text-mono-label-sm text-error uppercase">Critical Alerts</p>
+<p class="font-headline-md text-headline-md text-on-surface">03 LOW STOCKS</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Grid: Analytics & Top Stats -->
+<div class="grid grid-cols-12 gap-container-gap">
+<!-- Main Supply Health Gauge -->
+<div class="col-span-12 lg:col-span-8 glass-card rounded-xl p-8 relative overflow-hidden group">
+<div class="scanning-bar opacity-0 group-hover:opacity-10 pointer-events-none"></div>
+<div class="flex justify-between items-start mb-12">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Tactical Supply Overview</h3>
+<p class="font-mono-data-md text-mono-data-md text-outline">Sector-wide aggregate consumption vs. replenishment</p>
+</div>
+<select class="bg-surface-variant border border-outline-variant/30 text-mono-label-sm font-mono-label-sm rounded-lg px-4 py-2 text-on-surface focus:ring-primary">
+<option>LAST 24 HOURS</option>
+<option>LAST 7 DAYS</option>
+</select>
+</div>
+<div class="h-64 flex items-end justify-between gap-4">
+<!-- Simulated Bar Chart -->
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-surface-container-high rounded-t-lg relative group h-48">
+<div class="absolute bottom-0 w-full bg-primary-container rounded-t-lg shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-all duration-700" style="height: 82%"></div>
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface border border-primary text-primary px-2 py-1 rounded text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">82%</div>
+</div>
+<span class="font-mono-label-sm text-mono-label-sm text-outline">FOOD</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-surface-container-high rounded-t-lg relative group h-36">
+<div class="absolute bottom-0 w-full bg-tertiary-container rounded-t-lg shadow-[0_0_15px_rgba(73,237,114,0.4)] transition-all duration-700" style="height: 65%"></div>
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface border border-tertiary text-tertiary px-2 py-1 rounded text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">65%</div>
+</div>
+<span class="font-mono-label-sm text-mono-label-sm text-outline">MED</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-surface-container-high rounded-t-lg relative group h-56">
+<div class="absolute bottom-0 w-full bg-primary-container rounded-t-lg shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-all duration-700" style="height: 94%"></div>
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface border border-primary text-primary px-2 py-1 rounded text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">94%</div>
+</div>
+<span class="font-mono-label-sm text-mono-label-sm text-outline">WATER</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-surface-container-high rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-error rounded-t-lg shadow-[0_0_15px_rgba(255,180,171,0.4)] transition-all duration-700" style="height: 28%"></div>
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface border border-error text-error px-2 py-1 rounded text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">28%</div>
+</div>
+<span class="font-mono-label-sm text-mono-label-sm text-outline">FUEL</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-4">
+<div class="w-full bg-surface-container-high rounded-t-lg relative group h-40">
+<div class="absolute bottom-0 w-full bg-primary-container rounded-t-lg shadow-[0_0_15px_rgba(0,229,255,0.4)] transition-all duration-700" style="height: 45%"></div>
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-surface border border-primary text-primary px-2 py-1 rounded text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">45%</div>
+</div>
+<span class="font-mono-label-sm text-mono-label-sm text-outline">SHLTR</span>
+</div>
+</div>
+</div>
+<!-- Threat Meter / Shelter Capacity -->
+<div class="col-span-12 lg:col-span-4 glass-card rounded-xl p-8 flex flex-col justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Shelter Capacity</h3>
+<p class="font-mono-data-md text-mono-data-md text-outline mb-6">Real-time occupancy metrics</p>
+</div>
+<div class="flex justify-center items-center py-10 relative">
+<!-- CSS Donut Chart -->
+<div class="relative w-40 h-40 rounded-full flex items-center justify-center border-8 border-surface-container-highest">
+<div class="absolute inset-0 rounded-full border-8 border-primary-container" style="clip-path: polygon(50% 50%, 50% 0, 100% 0, 100% 100%, 0 100%, 0 0, 50% 0);"></div>
+<div class="text-center">
+<p class="text-4xl font-bold text-on-surface">72%</p>
+<p class="text-xs text-outline font-mono uppercase">Full</p>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between font-mono-label-sm">
+<span class="text-outline">AVAILABLE BERTHS</span>
+<span class="text-primary-container">4,281</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full">
+<div class="h-full bg-primary-container w-[72%] rounded-full shadow-[0_0_8px_rgba(0,229,255,0.3)]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Resource Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-container-gap">
+<!-- Card: Food -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-primary-container/50 transition-all duration-300">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500" data-alt="A clean, industrial warehouse setting with orderly stacked food crates and rations. The lighting is cool and clinical with high-tech glowing scanners on the ceiling. The atmosphere is professional and prepared, utilizing a dark navy and neon cyan palette consistent with a futuristic tactical operations center." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwXmL6I2TXi9vAFDInwDEwaiIitF6dQ2B6qtGkWvKuL5wjzgnkWwJJ2gdljPefpdZaxGv7zNb907MkBgjWmBxpOKLTxUlchhFZJI2ga0XfD6B_npVDFCvfiChtMcAquqaLvpbaBFeQn8LBtMhpRxR0kgkx4ErDmh9Ya0k4qcO0qpfkxgujR2nlAQHfEvkZjXCX4xq-QJFcghn7RvnEFgF7-mGwZp08ZoNigqxweTYqyfaPTwTHbDpa7s4auuFoeKkVgTF7Fb6_EovY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+<span class="absolute top-4 left-4 bg-primary-container/20 text-primary-container px-3 py-1 rounded text-[10px] font-mono border border-primary-container/40">TRACKING: ON</span>
+</div>
+<div class="p-6 pt-0 space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-primary">Food</h4>
+<span class="material-symbols-outlined text-outline">restaurant</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-mono-data-md">
+<span class="text-outline">Rations</span>
+<span class="text-on-surface">12.4k Units</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full">
+<div class="h-full bg-primary-container w-[82%] rounded-full"></div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-variant text-primary font-mono-label-sm text-mono-label-sm border border-outline-variant/30 hover:bg-primary/10 transition-colors uppercase">View Manifest</button>
+</div>
+</div>
+<!-- Card: Medical -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-tertiary-container/50 transition-all duration-300">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500" data-alt="Close up of medical supplies and kits in a modern, tactical field hospital. Glowing digital interfaces display vitals and inventory levels. The scene is lit with soft teal and white light, conveying medical precision and rapid response capability in a dark-mode tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIOsR5Nz3ccic4hoRTgdio4GPSeM7pfJUI1tdIzqBH-IR0VtzktoEr8NIGIHs_dbW4W9QHizWi1LwrLKccgBROvzB8qLOgYfA3DPwZ0ZrNWStjTtmAMuCtmaELooipExSrnDsPOWtRVZnRjIpLRLWWvpRoosqefnW1aVEnS5Vz58kDCux-WX5yfBvuPZRbJN6yfE1IZLMQXz14EbX9uJlgJTiprb8Ys1nTsVlS33qJYT0cb71zA7Ktb-hc6a9PrhxoM_IeH31ZUdu5"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+<span class="absolute top-4 left-4 bg-tertiary-container/20 text-tertiary-container px-3 py-1 rounded text-[10px] font-mono border border-tertiary-container/40">TRACKING: ON</span>
+</div>
+<div class="p-6 pt-0 space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-tertiary-fixed-dim">Medical</h4>
+<span class="material-symbols-outlined text-outline">emergency</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-mono-data-md">
+<span class="text-outline">Kits</span>
+<span class="text-on-surface">4,800 Units</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full">
+<div class="h-full bg-tertiary-container w-[65%] rounded-full"></div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-variant text-tertiary-fixed-dim font-mono-label-sm text-mono-label-sm border border-outline-variant/30 hover:bg-tertiary/10 transition-colors uppercase">Restock Alert</button>
+</div>
+</div>
+<!-- Card: Water -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-primary-container/50 transition-all duration-300">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500" data-alt="Huge industrial water filtration tanks in a dark, metallic facility. Cyan light glows from the seams of the tanks, reflecting on the polished floor. The mood is one of vital resource security and engineering excellence, with a futuristic aerospace aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCVy6wK-vrhoooCSzn2zqDjz8MIratSNnhmgkB9Mtb7AKMcQ8OIV4euWJBHHN-Vp1CWQHeK0GescAr9yIw6SeFRX_t6fgnuBMTdzY3kk1ffsrQ-N_5Ds4LSQfbNmDe0_n4HP0r8J2e-uQ-jytJGaNJeeeTHRbGx3j6VxlZsRcfvEQso-V5cB0Q-iViqf_DPIfD6rcyfGnipewoEcW51LnqacxKzU4hZHCywLKv6NNwqTeuOS8hHZe06MgNZCPUM6MTaswER01ozjaj"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+<span class="absolute top-4 left-4 bg-primary-container/20 text-primary-container px-3 py-1 rounded text-[10px] font-mono border border-primary-container/40">TRACKING: ON</span>
+</div>
+<div class="p-6 pt-0 space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-primary">Water</h4>
+<span class="material-symbols-outlined text-outline">water_drop</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-mono-data-md">
+<span class="text-outline">Purified</span>
+<span class="text-on-surface">82k Liters</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full">
+<div class="h-full bg-primary-container w-[94%] rounded-full"></div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-variant text-primary font-mono-label-sm text-mono-label-sm border border-outline-variant/30 hover:bg-primary/10 transition-colors uppercase">Flush System</button>
+</div>
+</div>
+<!-- Card: Fuel -->
+<div class="glass-card rounded-xl overflow-hidden group border border-error/30">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500" data-alt="Industrial fuel storage facility at night. Red warning lights flash near pipes and valve controls. The scene is gritty yet technologically advanced, with a heavy emphasis on safety protocols and critical resource management. High-contrast shadows and red highlights dominate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUALu4Fs7tvPMMbkbFdef6ogViaR5CGrBj7OzT7MJHLO_N-LQChz9kZdRWNNHO1OA9H2fs6GOFhGRFojgZrnr0u561V-PAM29An_3RZ1aFgR4f6tGlmCjSYwi7HciJfgM06A4HPzS_TPfmsAyGiG1FvYFcXyn8uOnqDM_Hy0T8O-tUAGlWwGe7Ls34xZSywH3Fu8V7vJ8sVjsxhvdUwWMtg4tmsrQeIPTR_sZl4-nhiwUbuY8hHUUiaRfCQQU2TmEl7KKH_nWu5Y_P"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+<span class="absolute top-4 left-4 bg-error-container/40 text-error px-3 py-1 rounded text-[10px] font-mono border border-error/60 animate-pulse">LOW STOCK</span>
+</div>
+<div class="p-6 pt-0 space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-error">Fuel</h4>
+<span class="material-symbols-outlined text-error">local_gas_station</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-mono-data-md">
+<span class="text-outline">Cells</span>
+<span class="text-error">1,200/5,000</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full">
+<div class="h-full bg-error w-[28%] rounded-full shadow-[0_0_8px_rgba(255,180,171,0.5)]"></div>
+</div>
+</div>
+<button class="w-full py-2 bg-error-container/20 text-error font-mono-label-sm text-mono-label-sm border border-error/30 hover:bg-error/30 transition-colors uppercase">Reorder Now</button>
+</div>
+</div>
+<!-- Card: Shelter -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-primary-container/50 transition-all duration-300">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-500" data-alt="Interior of a high-tech modular shelter. Clean white surfaces, integrated lighting strips, and digital management consoles. The space is efficient and futuristic, designed for rapid deployment and maximum comfort in a crisis environment. The atmosphere is calm and orderly." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Tj1sgYpuPyz49G8Y29Ryt3YrAZgf8w4lybtN6wE6zUGKqntyOHzc8HKFEkPgswSd9TBLyXqxqqzVMmXiwOFVz7I4fmMD7rUDjdEFkl_rDHrE282I7Vp8jcZB_2OBeUvPKxe9oqwQui_bWT05hbVX7R7OLVN_9R9Mv8-il1d3hj6TmXjtbUk901UYMknFz-3vzJgGZcwz1ooDz2m5CeeQPEfPbUobcGwdzros8jDEBS8iKJoiFdVTtkhW45QVOdWLoqgpMXItWQfN"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+<span class="absolute top-4 left-4 bg-primary-container/20 text-primary-container px-3 py-1 rounded text-[10px] font-mono border border-primary-container/40">TRACKING: ON</span>
+</div>
+<div class="p-6 pt-0 space-y-4">
+<div class="flex justify-between items-center">
+<h4 class="font-headline-md text-headline-md text-on-surface">Shelter</h4>
+<span class="material-symbols-outlined text-outline">meeting_room</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-mono-data-md">
+<span class="text-outline">Capacity</span>
+<span class="text-on-surface">15.2k Max</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full">
+<div class="h-full bg-primary-container w-[72%] rounded-full"></div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-variant text-on-surface font-mono-label-sm text-mono-label-sm border border-outline-variant/30 hover:bg-primary/10 transition-colors uppercase">Assign Space</button>
+</div>
+</div>
+</div>
+<!-- Recent Log Entries Table -->
+<div class="glass-card rounded-xl overflow-hidden">
+<div class="p-6 border-b border-outline-variant/10 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Logistical Event Stream</h3>
+<span class="text-mono-label-sm text-mono-label-sm text-outline">AUTO-UPDATE: 3s</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead>
+<tr class="bg-surface-variant/50">
+<th class="p-4 text-left font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest border-b border-outline-variant/10">Timestamp</th>
+<th class="p-4 text-left font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest border-b border-outline-variant/10">Resource ID</th>
+<th class="p-4 text-left font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest border-b border-outline-variant/10">Action Type</th>
+<th class="p-4 text-left font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest border-b border-outline-variant/10">Status</th>
+<th class="p-4 text-right font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest border-b border-outline-variant/10">Personnel</th>
+</tr>
+</thead>
+<tbody class="font-mono-data-md text-mono-data-md">
+<tr class="group hover:bg-primary/5 transition-colors border-b border-white/5">
+<td class="p-4 text-on-surface-variant group-hover:text-primary transition-colors">14:22:05</td>
+<td class="p-4 font-bold">MED-ANTIVIRAL-77</td>
+<td class="p-4 text-on-surface-variant">Inventory Depletion</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-error/10 border border-error/30 text-error text-[10px]">LOW LEVEL</span></td>
+<td class="p-4 text-right">CMD_VAX</td>
+</tr>
+<tr class="group hover:bg-primary/5 transition-colors border-b border-white/5">
+<td class="p-4 text-on-surface-variant group-hover:text-primary transition-colors">14:18:42</td>
+<td class="p-4 font-bold">H2O-MAIN-VALVE</td>
+<td class="p-4 text-on-surface-variant">Pressure Calibration</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-tertiary/10 border border-tertiary/30 text-tertiary text-[10px]">OPTIMAL</span></td>
+<td class="p-4 text-right">ENG_FLOW</td>
+</tr>
+<tr class="group hover:bg-primary/5 transition-colors border-b border-white/5">
+<td class="p-4 text-on-surface-variant group-hover:text-primary transition-colors">13:55:10</td>
+<td class="p-4 font-bold">FUEL-CELL-X4</td>
+<td class="p-4 text-on-surface-variant">Bulk Withdrawal</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-error/10 border border-error/30 text-error text-[10px]">CRITICAL</span></td>
+<td class="p-4 text-right">OPS_GEN</td>
+</tr>
+<tr class="group hover:bg-primary/5 transition-colors">
+<td class="p-4 text-on-surface-variant group-hover:text-primary transition-colors">13:42:15</td>
+<td class="p-4 font-bold">FOOD-RAT-C12</td>
+<td class="p-4 text-on-surface-variant">Manifest Update</td>
+<td class="p-4"><span class="px-2 py-1 rounded bg-primary/10 border border-primary/30 text-primary text-[10px]">STABLE</span></td>
+<td class="p-4 text-right">LOG_DIST</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-4 px-margin-desktop flex flex-col md:flex-row justify-between items-center bg-surface-dim border-t border-outline-variant/10 relative z-50">
+<p class="font-mono-data-md text-mono-data-md text-outline">© 2024 PHOENIX GRID TACTICAL SYSTEMS. ENCRYPTED P2P CHANNEL ACTIVE.</p>
+<div class="flex gap-8 mt-4 md:mt-0">
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Network Protocol</a>
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Engagement</a>
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">SLA</a>
+</div>
+</footer>
+<script>
+        // Micro-interactions and Atmospheric Effects
+        document.addEventListener('mousemove', (e) => {
+            const glow = document.querySelector('.bg-primary\\/5');
+            const x = e.clientX;
+            const y = e.clientY;
+            glow.style.transform = `translate(${x - 400}px, ${y - 400}px)`;
+        });
+
+        // Simple animation for numbers (simulated)
+        const counts = document.querySelectorAll('.font-headline-md');
+        counts.forEach(counter => {
+            if(counter.innerText.includes('Units') || counter.innerText.includes('Liters')) {
+                const finalValue = parseFloat(counter.innerText);
+                let startValue = 0;
+                const duration = 2000;
+                const step = (finalValue / duration) * 10;
+                
+                const timer = setInterval(() => {
+                    startValue += step;
+                    if (startValue >= finalValue) {
+                        clearInterval(timer);
+                    }
+                }, 10);
+            }
+        });
+    </script>
+</body></html>

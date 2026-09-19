@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .drop-shadow-glow {
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        .neon-border-glow:focus-within {
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            border-bottom-color: #00e5ff;
+        }
+        @keyframes pulse-cyan {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .animate-pulse-cyan {
+            animation: pulse-cyan 3s infinite ease-in-out;
+        }
+        .grid-bg {
+            background-image: linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px), 
+                              linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#849396",
+                        "inverse-on-surface": "#2b303e",
+                        "on-tertiary-fixed": "#002108",
+                        "on-surface": "#dee2f5",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#006727",
+                        "on-primary": "#00363d",
+                        "surface-container-lowest": "#090e1b",
+                        "primary": "#c3f5ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-surface": "#dee2f5",
+                        "surface-container-high": "#252a38",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-low": "#161b29",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline-variant": "#3b494c",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-dim": "#0e1320",
+                        "primary-fixed": "#9cf0ff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#003912",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0e1320",
+                        "surface-variant": "#303443",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-highest": "#303443",
+                        "surface-bright": "#343948",
+                        "primary-container": "#00e5ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container": "#1a1f2d",
+                        "tertiary-container": "#49ed72",
+                        "error-container": "#93000a",
+                        "on-background": "#dee2f5",
+                        "secondary-container": "#0566d9",
+                        "secondary": "#adc6ff",
+                        "tertiary": "#b1ffb5",
+                        "on-primary-container": "#00626e",
+                        "tertiary-fixed": "#69ff87",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "inverse-primary": "#006875",
+                        "surface-tint": "#00daf3",
+                        "background": "#0e1320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "container-gap": "24px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-label-sm": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-data-md": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-8">
+<span class="font-display-lg text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest text-primary-fixed drop-shadow-glow hover:bg-primary/10 hover:text-primary transition-all duration-300 px-3 py-2" href="#">Command</a>
+<a class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 px-3 py-2" href="#">Mesh Net</a>
+<a class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 px-3 py-2" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center gap-2 px-4 py-2 border border-primary/20 bg-primary/5">
+<span class="material-symbols-outlined text-primary-fixed-dim text-sm" style="font-variation-settings: 'FILL' 1;">sensors</span>
+<span class="font-mono-label-sm text-mono-label-sm text-primary">OPS STATUS: ALPHA</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">network_check</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">language</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex flex-col items-center justify-center text-center px-6 overflow-hidden grid-bg">
+<!-- Animated Map Background Mockup -->
+<div class="absolute inset-0 z-0 opacity-40 pointer-events-none">
+<div class="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"></div>
+<img alt="Futuristic World Map" class="w-full h-full object-cover" data-alt="A dark, high-contrast digital world map rendered in deep navy and black with glowing neon cyan connections representing a global mesh network. Glowing nodes represent major cities, with animated lines of light pulsing between them like a data neural network. The aesthetic is clean, tactical, and futuristic, with a subtle 3D tilt perspective and digital atmospheric depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQbPGBkAvXAy_n-mLVcI3Bqp-M8zXRu6F_tQlwRnKiDJDFtNPf0K953QscdS5N0T3z2oqcScOc61yZ6qGUPlFqhBxPg66K47iGxEVfxLF9k0AmH2fs-zOP9TV5zENZnRItSdNowh5lReWmL4f9AdtkZC7Qp8AApcnLEJORlmSnXVhZhr-hpEA6qVQ1uAD75UvR00tTsTUv-Fy5wxIwba-PVHfFFFEqeKJ8CMOqW3NSl5cAdhmFMoEJzzQhcrSzv8URjzvz5OcY8NlU"/>
+</div>
+<div class="relative z-10 max-w-5xl space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-primary-container/10 border border-primary-container/30 rounded-full mb-4">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-mono-label-sm text-mono-label-sm text-primary-container tracking-tighter uppercase">Quantum Resilience Protocol Active</span>
+</div>
+<h1 class="font-display-lg text-display-lg md:text-[80px] leading-[1.1] text-primary tracking-tight">
+                    When Connectivity Fails,<br/>
+<span class="text-on-surface">Coordination Survives.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                    The world’s first decentralized tactical mesh network designed for ultra-high-stakes humanitarian operations and disaster response.
+                </p>
+<div class="flex flex-col md:flex-row items-center justify-center gap-4 pt-8">
+<button class="group relative px-8 py-4 bg-primary-container text-on-primary-container font-headline-md text-[18px] transition-all hover:scale-105 active:scale-95 shadow-[0_0_24px_rgba(0,229,255,0.4)]">
+                        Launch Command Center
+                        <span class="absolute inset-0 border border-white/20 scale-105 group-hover:scale-110 transition-transform duration-500"></span>
+</button>
+<button class="px-8 py-4 bg-transparent border border-primary-container text-primary-container font-headline-md text-[18px] hover:bg-primary-container/10 transition-all shadow-[0_0_12px_rgba(0,229,255,0.1)]">
+                        View Disaster Simulation
+                    </button>
+</div>
+<button class="block mx-auto pt-6 font-mono-label-sm text-mono-label-sm text-outline hover:text-primary transition-colors uppercase tracking-widest">
+                    Request Humanitarian Aid →
+                </button>
+</div>
+<!-- Floating HUD Elements -->
+<div class="absolute bottom-12 left-12 hidden xl:block glass-panel p-4 rounded-lg border-l-4 border-primary-container">
+<div class="font-mono-label-sm text-primary mb-1">NETWORK LATENCY</div>
+<div class="font-display-lg text-[24px] text-on-surface">14ms <span class="text-tertiary text-sm">SECURE</span></div>
+</div>
+<div class="absolute bottom-12 right-12 hidden xl:block glass-panel p-4 rounded-lg border-r-4 border-primary-container text-right">
+<div class="font-mono-label-sm text-primary mb-1">GLOBAL NODES</div>
+<div class="font-display-lg text-[24px] text-on-surface">142,891 <span class="text-primary-fixed-dim text-sm">+12%</span></div>
+</div>
+</section>
+<!-- Stats Bento Grid -->
+<section class="py-24 px-margin-desktop max-w-7xl mx-auto">
+<div class="grid grid-cols-12 gap-container-gap">
+<!-- Main Visual AI Card -->
+<div class="col-span-12 lg:col-span-8 glass-panel rounded-xl overflow-hidden relative min-h-[400px]">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-container via-transparent to-transparent"></div>
+<div class="p-8 h-full flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-primary-fixed">AI Risk Prediction</h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-error/10 border border-error/20 text-error font-mono-label-sm">THREAT: HIGH</span>
+<span class="px-3 py-1 bg-surface-variant/50 text-on-surface-variant font-mono-label-sm">SECTOR 7G</span>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+<div class="space-y-1">
+<div class="text-outline font-mono-label-sm">PROBABILITY</div>
+<div class="text-headline-md text-on-surface">89.4%</div>
+</div>
+<div class="space-y-1">
+<div class="text-outline font-mono-label-sm">POPULATION IMPACT</div>
+<div class="text-headline-md text-on-surface">2.4M</div>
+</div>
+<div class="space-y-1">
+<div class="text-outline font-mono-label-sm">RESPONSE TIME</div>
+<div class="text-headline-md text-on-surface">--:--</div>
+</div>
+<div class="space-y-1">
+<div class="text-outline font-mono-label-sm">NETWORK HEALTH</div>
+<div class="text-headline-md text-tertiary">STABLE</div>
+</div>
+</div>
+</div>
+<div class="relative h-48 w-full bg-surface-container-low rounded border border-outline-variant/10 overflow-hidden">
+<img alt="Data Analytics Visual" class="w-full h-full object-cover opacity-50" data-alt="A sophisticated data visualization interface showing complex topographic risk patterns in neon green and blue colors. Floating UI elements like histograms, scatter plots, and coordinate markers are overlaid on a futuristic tactical dark mode background. The scene is illuminated by the glow of the data, suggesting high-frequency AI analysis in a mission control room setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxi5zsRxRbDoT55cDHnhAkz-uBbjAfCtvDJJgxd54vvfQmI9wN25JxEHW0W_yWENo6Y0wh_E2uslZJDC1OxV4rv18niqJsCXtiKHPh_0IoVK5qnKLnmYl3kl3NZI8LfnxjwVY6t2vL59At_U49j1APPBKky_h9OCNcNCqpfszRIiqocqlqjKtswyKY7CSgHiEJgHRsQm4Goft_GOBpmMsYY_LeGjKaQ23Fpk0-n0C106INTPOC-Wzt0bAt2Tvy2KXy8--zfptbGc44"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+<div class="absolute bottom-4 left-4 flex gap-4">
+<span class="material-symbols-outlined text-primary-container animate-pulse-cyan">monitoring</span>
+<span class="font-mono-data-md text-mono-data-md text-primary">SCANNING TEMPORAL ANOMALIES...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Emergency Stats Card -->
+<div class="col-span-12 md:col-span-6 lg:col-span-4 glass-panel rounded-xl p-8 flex flex-col justify-between border-t-2 border-primary-container">
+<h3 class="font-headline-md text-headline-md mb-8">Response Metrics</h3>
+<div class="space-y-6">
+<div class="flex items-end justify-between border-b border-outline-variant/20 pb-4">
+<div>
+<div class="font-mono-label-sm text-outline mb-1">AVERAGE DEPLOYMENT</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">242s</div>
+</div>
+<span class="material-symbols-outlined text-primary-container text-4xl">speed</span>
+</div>
+<div class="flex items-end justify-between border-b border-outline-variant/20 pb-4">
+<div>
+<div class="font-mono-label-sm text-outline mb-1">LIVES SAFEGUARDED</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">12.8M</div>
+</div>
+<span class="material-symbols-outlined text-primary-container text-4xl">shield_person</span>
+</div>
+<div class="flex items-end justify-between border-b border-outline-variant/20 pb-4">
+<div>
+<div class="font-mono-label-sm text-outline mb-1">OFF-GRID NODES</div>
+<div class="font-headline-lg text-headline-lg text-on-surface">86k</div>
+</div>
+<span class="material-symbols-outlined text-primary-container text-4xl">hub</span>
+</div>
+</div>
+</div>
+<!-- Small Technical Card -->
+<div class="col-span-12 md:col-span-6 lg:col-span-4 glass-panel rounded-xl p-6 bg-primary-container/5 border-l-4 border-primary-container">
+<div class="flex items-center gap-4 mb-4">
+<span class="material-symbols-outlined text-primary-container">security</span>
+<h4 class="font-headline-md text-headline-md text-on-surface">Quantum Encryption</h4>
+</div>
+<p class="text-on-surface-variant font-body-md mb-6">
+                        P2P communications are hardened with lattice-based cryptography, ensuring zero-knowledge privacy in contested zones.
+                    </p>
+<div class="font-mono-data-md text-mono-data-md bg-black/40 p-3 rounded text-primary-fixed-dim">
+                        ROOT@PHX:~$ DECRYPT_LVL_9.sh
+                    </div>
+</div>
+<!-- Map Coordinates Card -->
+<div class="col-span-12 lg:col-span-8 glass-panel rounded-xl flex flex-col md:flex-row items-center overflow-hidden">
+<div class="w-full md:w-1/2 h-64 md:h-full grayscale hover:grayscale-0 transition-all duration-500">
+<img alt="Tactical Map" class="w-full h-full object-cover" data-alt="A macro close-up of a tactical satellite map with digital topographic lines and glowing red 'Hot Zone' indicators. The map displays a dense urban environment at night, with individual building footprints illuminated by faint blue outlines. Graphical UI overlays like compass rose and distance scales are visible in the corners with a glass-like tactical interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxGhq2RJejvXdlNYaXDMaA_VRmid8zEwzXUDbA_cPJYI6s6bUkgBXRmsEr9tYyM6SSGjS-8-9dsDlzk5VOPQ8fhsrfaEsBLmPFU_2jgDkvyS7DnOahSWNS88ZWVfRYH5Anme46qT_OC4qpLpeIkZ-IXiLScuiKkkyy7Bl8bYtVpkft9SARGxCPQR7OQLlqqLih2DwbIJ6Tqrcg2SFkmk-yaTJ5q5SMnrNLynvL_Fy21rFQrOA3IFG0C2pqrsPgZwQsILckU2v8Lu2E"/>
+</div>
+<div class="w-full md:w-1/2 p-8">
+<h3 class="font-headline-md text-headline-md mb-4 text-primary-fixed">Sector Deployment</h3>
+<p class="text-on-surface-variant mb-6 font-body-md">Currently active in 14 conflict regions. Mesh networking successfully restored in blackout zones.</p>
+<ul class="space-y-3 font-mono-data-md">
+<li class="flex items-center gap-2 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> 
+                                ACTIVE: 52°31'12"N 13°24'18"E
+                            </li>
+<li class="flex items-center gap-2 text-on-surface">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> 
+                                ACTIVE: 35°41'22"N 139°41'30"E
+                            </li>
+<li class="flex items-center gap-2 text-outline">
+<span class="w-2 h-2 rounded-full bg-outline"></span> 
+                                STANDBY: 40°42'46"N 74°00'21"W
+                            </li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 -skew-y-3 pointer-events-none"></div>
+<div class="max-w-4xl mx-auto text-center px-margin-desktop relative z-10">
+<h2 class="font-display-lg text-display-lg mb-6">Ready to Coordinate?</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10">
+                    Join the PHOENIX GRID infrastructure. Whether you are an NGO, a government agency, or a volunteer responder, our decentralized tools empower your mission.
+                </p>
+<div class="flex flex-wrap justify-center gap-6">
+<button class="px-10 py-5 bg-primary-container text-on-primary-container font-headline-md rounded-lg shadow-xl hover:shadow-primary-container/20 transition-all active:scale-95">
+                        INTEGRATE SYSTEM
+                    </button>
+<button class="px-10 py-5 glass-panel text-primary-container font-headline-md rounded-lg hover:bg-primary-container/10 transition-all border-primary-container/30">
+                        READ PROTOCOLS
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-margin-desktop flex flex-col md:flex-row justify-between items-center bg-surface-dim border-t border-outline-variant/10">
+<div class="flex flex-col items-center md:items-start gap-4 mb-8 md:mb-0">
+<span class="font-mono-label-sm text-primary text-mono-label-sm uppercase tracking-widest">PHOENIX GRID TACTICAL</span>
+<p class="font-mono-data-md text-mono-data-md text-outline max-w-sm text-center md:text-left">
+                © 2024 PHOENIX GRID TACTICAL SYSTEMS. ENCRYPTED P2P CHANNEL ACTIVE.
+            </p>
+</div>
+<div class="flex gap-8">
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors" href="#">Network Protocol</a>
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors" href="#">Terms of Engagement</a>
+<a class="font-mono-data-md text-mono-data-md text-outline hover:text-tertiary transition-colors" href="#">SLA</a>
+</div>
+<div class="mt-8 md:mt-0 opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+<div class="flex items-center gap-2 px-4 py-2 bg-surface-variant/30 border border-outline-variant/30 rounded">
+<span class="material-symbols-outlined text-sm text-primary">terminal</span>
+<span class="font-mono-label-sm text-mono-label-sm">v2.4.0-STABLE</span>
+</div>
+</div>
+</footer>
+<script>
+        // Atmospheric Micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                const glow = '0 0 20px rgba(0, 229, 255, 0.4)';
+                if(btn.classList.contains('bg-primary-container')) {
+                    btn.style.boxShadow = glow;
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.boxShadow = '';
+            });
+        });
+
+        // Floating elements subtle animation
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroText = document.querySelector('h1');
+            if(heroText) {
+                heroText.style.transform = `translateY(${scrolled * 0.1}px)`;
+            }
+        });
+    </script>
+</body></html>

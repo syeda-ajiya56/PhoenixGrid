@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | Citizen Mobile Companion</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#849396",
+                        "inverse-on-surface": "#2b303e",
+                        "on-tertiary-fixed": "#002108",
+                        "on-surface": "#dee2f5",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#006727",
+                        "on-primary": "#00363d",
+                        "surface-container-lowest": "#090e1b",
+                        "primary": "#c3f5ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-surface": "#dee2f5",
+                        "surface-container-high": "#252a38",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-low": "#161b29",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline-variant": "#3b494c",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-dim": "#0e1320",
+                        "primary-fixed": "#9cf0ff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#003912",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0e1320",
+                        "surface-variant": "#303443",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-highest": "#303443",
+                        "surface-bright": "#343948",
+                        "primary-container": "#00e5ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container": "#1a1f2d",
+                        "tertiary-container": "#49ed72",
+                        "error-container": "#93000a",
+                        "on-background": "#dee2f5",
+                        "secondary-container": "#0566d9",
+                        "secondary": "#adc6ff",
+                        "tertiary": "#b1ffb5",
+                        "on-primary-container": "#00626e",
+                        "tertiary-fixed": "#69ff87",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "inverse-primary": "#006875",
+                        "surface-tint": "#00daf3",
+                        "background": "#0e1320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "container-gap": "24px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-label-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-data-md": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .drop-shadow-glow { filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6)); }
+        .emergency-pulse { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 180, 171, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 180, 171, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 180, 171, 0); }
+        }
+        .mesh-active-glow { animation: mesh-pulse 4s ease-in-out infinite; }
+        @keyframes mesh-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; text-shadow: 0 0 10px #00e5ff; }
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0e1320; }
+        ::-webkit-scrollbar-thumb { background: #3b494c; border-radius: 2px; }
+        .tactical-grid {
+            background-image: radial-gradient(circle, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+<!-- Top Status Bar (Mesh Network) -->
+<div class="fixed top-0 w-full z-[60] bg-surface-container-lowest/90 backdrop-blur-md h-8 border-b border-outline-variant/30 flex items-center justify-between px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim mesh-active-glow" style="font-variation-settings: 'FILL' 1;">hub</span>
+<span class="font-mono-label-sm text-mono-label-sm text-primary-fixed-dim">MESH NETWORK ACTIVE [NODE: PHX-7G]</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-mono-label-sm text-mono-label-sm text-outline">LAT: 34.0522 N</span>
+<span class="font-mono-label-sm text-mono-label-sm text-outline">LON: 118.2437 W</span>
+</div>
+</div>
+<!-- TopAppBar -->
+<header class="fixed top-8 w-full z-50 flex justify-between items-center px-4 md:px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-3">
+<span class="font-display-lg text-[24px] md:text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)] leading-none uppercase">PHOENIX GRID</span>
+</div>
+<div class="flex items-center gap-2 md:gap-4">
+<button class="flex items-center gap-2 bg-error-container text-on-error-container px-4 py-2 rounded-lg font-mono-label-sm text-mono-label-sm font-bold border border-error/20 hover:bg-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">network_check</span>
+<span class="hidden sm:inline">OPS STATUS: ALPHA</span>
+</button>
+<div class="flex items-center">
+<button class="p-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">language</span>
+</button>
+<button class="p-3 text-on-surface-variant hover:bg-primary/10 hover:text-primary transition-all duration-300 rounded-lg">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-28 mb-24 px-4 md:px-margin-desktop tactical-grid">
+<div class="max-w-7xl mx-auto space-y-container-gap">
+<!-- Hero SOS Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-container-gap">
+<div class="md:col-span-8 flex flex-col justify-center bg-surface-container-low/60 backdrop-blur-lg border border-outline-variant/20 rounded-xl p-8 relative overflow-hidden">
+<!-- Background Visual Decor -->
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10 space-y-6 text-center md:text-left">
+<div class="space-y-2">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Emergency Command Center</h1>
+<p class="text-on-surface-variant max-w-lg">Real-time tactical oversight and distress broadcast system. Initiate SOS only in confirmed life-threatening situations.</p>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-6 pt-4">
+<button class="group relative flex items-center justify-center w-48 h-48 md:w-56 md:h-56 rounded-full bg-error border-8 border-error-container/50 emergency-pulse transition-all active:scale-90 cursor-pointer" id="sos-trigger">
+<div class="text-center">
+<span class="material-symbols-outlined text-[64px] text-on-error block" style="font-variation-settings: 'FILL' 1;">emergency</span>
+<span class="font-display-lg text-[32px] text-on-error block mt-2">SOS</span>
+</div>
+<div class="absolute inset-0 rounded-full border-4 border-white/20 animate-ping opacity-20"></div>
+</button>
+<div class="flex-1 space-y-4 w-full">
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-high border border-outline-variant/30 rounded-lg hover:border-primary-container transition-all group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+<div class="text-left">
+<p class="font-headline-md text-body-lg text-on-surface">Report Incident</p>
+<p class="text-mono-label-sm text-outline">CAPTURE VIDEO &amp; METADATA</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary-container">arrow_forward_ios</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-high border border-outline-variant/30 rounded-lg hover:border-tertiary-container transition-all group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<div class="text-left">
+<p class="font-headline-md text-body-lg text-on-surface">Medical Assistance</p>
+<p class="text-mono-label-sm text-outline">REQUEST EMS TRIAGE</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-tertiary-container">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Threat Meter / Telemetry Sidebar -->
+<div class="md:col-span-4 space-y-container-gap">
+<div class="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6">
+<div class="flex justify-between items-center mb-6">
+<span class="font-mono-label-sm text-mono-label-sm text-outline">THREAT LEVEL</span>
+<span class="px-2 py-0.5 bg-tertiary/10 text-tertiary border border-tertiary/30 rounded font-mono-label-sm text-[10px]">ELEVATED</span>
+</div>
+<div class="flex h-32 gap-1.5 items-end px-2">
+<div class="flex-1 bg-tertiary-container/40 h-[20%] rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary-container/40 h-[35%] rounded-t-sm"></div>
+<div class="flex-1 bg-tertiary-container h-[55%] rounded-t-sm shadow-[0_0_15px_rgba(73,237,114,0.4)]"></div>
+<div class="flex-1 bg-surface-variant/30 h-[10%] rounded-t-sm"></div>
+<div class="flex-1 bg-surface-variant/30 h-[10%] rounded-t-sm"></div>
+<div class="flex-1 bg-surface-variant/30 h-[10%] rounded-t-sm"></div>
+</div>
+<p class="mt-4 text-center font-mono-data-md text-mono-data-md text-on-surface">LOCAL SECTOR: 42% STABILITY</p>
+</div>
+<div class="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 space-y-4">
+<div class="flex items-center justify-between text-mono-label-sm text-outline">
+<span>RADIO SILENCE</span>
+<span class="text-primary-fixed-dim">OFF</span>
+</div>
+<div class="flex items-center justify-between text-mono-label-sm text-outline">
+<span>GPS PRECISION</span>
+<span class="text-tertiary">0.8M</span>
+</div>
+<div class="h-px bg-outline-variant/20"></div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></div>
+<span class="text-mono-data-md text-mono-data-md text-primary-fixed">UPDATING OFFLINE CACHE...</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Tactical Maps & Bento Navigation -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-container-gap">
+<!-- Map Widget -->
+<div class="md:col-span-7 h-[400px] bg-surface-container-low border border-outline-variant/30 rounded-xl overflow-hidden relative group">
+<img alt="Tactical Map" class="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="A highly detailed tactical military map interface displayed on a futuristic digital screen. The map features deep navy blue terrain with glowing neon cyan vector lines for streets and topographic contours. Semi-transparent emergency red zones indicate high-risk areas, while bright green icons mark safe zones and shelters. The lighting is low-key, emphasizing the glowing UI elements and sharp data overlays, creating a high-stakes tactical command atmosphere." data-location="Tokyo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIv9sqTW-6_FVKcw6OIajWjJccOfWd6FF5bF6_LiYBsvYmU2W2Jpj2yW58AUBFsaXlIoGgFXRH-uDm9E14vNZVGZxUbVwB6KFDFw1zgyrDa5fF1sFNL5TlXDtM_J00WEepwpBfFR6qbrbJZ4StgqK6zpEp005wieBiVTJyRkkQVwKiYmmWlDWKRXoBhpTxtMMD89RymxiUuO6reCRIAXRnie_w568BpOOsgSk_IK9bSMLwZiiqt7IxW5XPvuEjAtPT-yYkwzJtX0bi"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="px-3 py-1 bg-surface-container-highest/90 backdrop-blur-md border border-outline-variant/30 rounded font-mono-label-sm text-primary-fixed">34.0522 N, 118.2437 W</span>
+</div>
+<div class="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+<div class="space-y-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Tactical Map Alpha</h3>
+<p class="text-mono-label-sm text-outline uppercase">Offline mode: 4.2GB Cache Active</p>
+</div>
+<button class="bg-primary-container text-on-primary-container p-4 rounded-full shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">near_me</span>
+</button>
+</div>
+</div>
+<!-- Navigation Bento -->
+<div class="md:col-span-5 grid grid-cols-2 gap-container-gap">
+<div class="bg-surface-container-highest/40 backdrop-blur-md border border-outline-variant/20 rounded-xl p-6 flex flex-col justify-between hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary-container text-[32px] group-hover:scale-110 transition-transform">security</span>
+<div>
+<p class="font-headline-md text-body-lg text-on-surface">Safe Zones</p>
+<p class="text-mono-label-sm text-outline">3 NEAREST</p>
+</div>
+</div>
+<div class="bg-surface-container-highest/40 backdrop-blur-md border border-outline-variant/20 rounded-xl p-6 flex flex-col justify-between hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-tertiary-container text-[32px] group-hover:scale-110 transition-transform">inventory_2</span>
+<div>
+<p class="font-headline-md text-body-lg text-on-surface">Resources</p>
+<p class="text-mono-label-sm text-outline">WATER &amp; FOOD</p>
+</div>
+</div>
+<div class="bg-surface-container-highest/40 backdrop-blur-md border border-outline-variant/20 rounded-xl p-6 flex flex-col justify-between hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-outline text-[32px] group-hover:scale-110 transition-transform">hub</span>
+<div>
+<p class="font-headline-md text-body-lg text-on-surface">Relay Nodes</p>
+<p class="text-mono-label-sm text-outline">12 CONNECTED</p>
+</div>
+</div>
+<div class="bg-error-container/20 backdrop-blur-md border border-error/20 rounded-xl p-6 flex flex-col justify-between hover:bg-error-container/30 transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-error text-[32px] group-hover:scale-110 transition-transform">warning</span>
+<div>
+<p class="font-headline-md text-body-lg text-on-surface">Hazard Map</p>
+<p class="text-mono-label-sm text-error/80">6 ACTIVE ALERTS</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Broadcast / Activity Log -->
+<section class="bg-surface-container-low/40 border border-outline-variant/20 rounded-xl overflow-hidden">
+<div class="p-4 border-b border-outline-variant/20 flex justify-between items-center bg-surface-variant/10">
+<span class="font-mono-label-sm text-mono-label-sm text-outline flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary shadow-[0_0_8px_#49ed72]"></span>
+                        REGIONAL COMMS LOG
+                    </span>
+<span class="font-mono-label-sm text-mono-label-sm text-primary-fixed-dim">ENCRYPTED P2P CHANNEL</span>
+</div>
+<div class="p-6 space-y-4 max-h-[200px] overflow-y-auto">
+<div class="flex gap-4">
+<span class="font-mono-data-md text-outline">08:42:12</span>
+<span class="text-mono-data-md text-primary-fixed-dim">[NODE-A4]</span>
+<p class="text-mono-data-md text-on-surface">Sector 7G: Safe Zone 'Aurora' reached maximum capacity. Redirecting to 'Boreal'.</p>
+</div>
+<div class="flex gap-4">
+<span class="font-mono-data-md text-outline">08:40:05</span>
+<span class="text-mono-data-md text-error">[ALERT]</span>
+<p class="text-mono-data-md text-on-surface">Flood detected on 5th Avenue. Rerouting tactical map navigation data.</p>
+</div>
+<div class="flex gap-4">
+<span class="font-mono-data-md text-outline">08:35:22</span>
+<span class="text-mono-data-md text-tertiary">[SYSTEM]</span>
+<p class="text-mono-data-md text-on-surface">Mesh Network stability increased by 14% after additional relay node activation.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-t border-outline-variant/30 flex justify-around items-center h-20 px-2 md:px-margin-desktop md:hidden">
+<button class="flex flex-col items-center justify-center gap-1 text-primary-fixed-dim drop-shadow-glow">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-mono-label-sm text-[10px] uppercase">Command</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">map</span>
+<span class="font-mono-label-sm text-[10px] uppercase">Map</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-mono-label-sm text-[10px] uppercase">Mesh</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">handshake</span>
+<span class="font-mono-label-sm text-[10px] uppercase">Aid</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-mono-label-sm text-[10px] uppercase">Logs</span>
+</button>
+</nav>
+<!-- Footer for Desktop -->
+<footer class="hidden md:flex w-full py-4 px-margin-desktop justify-between items-center bg-surface-dim border-t border-outline-variant/10">
+<div class="flex items-center gap-8">
+<span class="font-mono-label-sm text-primary uppercase">PHOENIX GRID TACTICAL SYSTEMS</span>
+<span class="font-mono-data-md text-outline">© 2024 ENCRYPTED P2P CHANNEL ACTIVE</span>
+</div>
+<div class="flex gap-6">
+<a class="text-mono-data-md text-outline hover:text-tertiary transition-colors" href="#">Network Protocol</a>
+<a class="text-mono-data-md text-outline hover:text-tertiary transition-colors" href="#">Terms of Engagement</a>
+<a class="text-mono-data-md text-outline hover:text-tertiary transition-colors" href="#">SLA</a>
+</div>
+</footer>
+<script>
+        // SOS Interaction Logic
+        const sosBtn = document.getElementById('sos-trigger');
+        let pressTimer;
+
+        sosBtn.addEventListener('mousedown', () => {
+            sosBtn.classList.add('scale-95');
+            pressTimer = setTimeout(() => {
+                alert('SOS BROADCAST INITIATED. YOUR LOCATION HAS BEEN TRANSMITTED TO ALL NEAREST NODES.');
+                sosBtn.classList.add('bg-on-error');
+                sosBtn.style.animation = 'none';
+            }, 2000);
+        });
+
+        sosBtn.addEventListener('mouseup', () => {
+            sosBtn.classList.remove('scale-95');
+            clearTimeout(pressTimer);
+        });
+
+        sosBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            sosBtn.classList.add('scale-95');
+            pressTimer = setTimeout(() => {
+                alert('SOS BROADCAST INITIATED. YOUR LOCATION HAS BEEN TRANSMITTED TO ALL NEAREST NODES.');
+                sosBtn.classList.add('bg-on-error');
+            }, 2000);
+        });
+
+        sosBtn.addEventListener('touchend', () => {
+            sosBtn.classList.remove('scale-95');
+            clearTimeout(pressTimer);
+        });
+
+        // Atmosphere: Random glitch effect for mesh network status
+        setInterval(() => {
+            const meshText = document.querySelector('.mesh-active-glow');
+            if (Math.random() > 0.95) {
+                meshText.style.opacity = '0.1';
+                setTimeout(() => meshText.style.opacity = '1', 50);
+            }
+        }, 1000);
+    </script>
+</body></html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | AI Causality & Ripple-Effect Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+  .glass-panel{backdrop-filter:blur(12px);background:rgba(22,27,41,0.85);border:1px solid rgba(59,73,76,0.4)}
+  @keyframes scanline{0%{top:0;opacity:0}50%{opacity:1}100%{top:100%;opacity:0}}
+  .scan-anim{position:relative;overflow:hidden}.scan-anim::after{content:'';position:absolute;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,#00e5ff,transparent);animation:scanline 5s linear infinite;pointer-events:none}
+  @keyframes ripple-cascade{0%{r:8;opacity:0.9}100%{r:60;opacity:0}}
+  @keyframes pulse-glow{0%,100%{filter:drop-shadow(0 0 4px currentColor)}50%{filter:drop-shadow(0 0 14px currentColor)}}
+  .node-pulse{animation:pulse-glow 2s ease-in-out infinite}
+  @keyframes dash-flow{to{stroke-dashoffset:-30}}
+  .dash-anim{stroke-dasharray:8 5;animation:dash-flow 1.5s linear infinite}
+  @keyframes counter-up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .counter-anim{animation:counter-up 0.4s ease-out}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#090e1b}::-webkit-scrollbar-thumb{background:#3b494c;border-radius:10px}
+</style>
+<script id="tailwind-config">
+tailwind.config={darkMode:"class",theme:{extend:{colors:{
+  "outline":"#849396","on-surface":"#dee2f5","on-surface-variant":"#bac9cc",
+  "surface-container-lowest":"#090e1b","surface-container-low":"#161b29",
+  "surface-container":"#1a1f2d","surface-container-high":"#252a38","surface-container-highest":"#303443",
+  "surface-dim":"#0e1320","surface":"#0e1320","surface-variant":"#303443","background":"#0e1320",
+  "primary":"#c3f5ff","primary-container":"#00e5ff","primary-fixed":"#9cf0ff","primary-fixed-dim":"#00daf3",
+  "on-primary":"#00363d","on-primary-container":"#00626e",
+  "secondary":"#adc6ff","secondary-container":"#0566d9",
+  "tertiary":"#b1ffb5","tertiary-container":"#49ed72","tertiary-fixed":"#69ff87","tertiary-fixed-dim":"#3ce36a",
+  "error":"#ffb4ab","error-container":"#93000a","outline-variant":"#3b494c"
+},fontFamily:{sans:["Inter","sans-serif"],mono:["JetBrains Mono","monospace"]},
+fontSize:{
+  "mono-label-sm":["12px",{lineHeight:"16px",letterSpacing:"0.05em",fontWeight:"500"}],
+  "headline-lg":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"700"}],
+  "headline-md":["24px",{lineHeight:"32px",fontWeight:"600"}],
+  "mono-data-md":["14px",{lineHeight:"20px",fontWeight:"400"}],
+  "display-lg":["48px",{lineHeight:"56px",letterSpacing:"-0.02em",fontWeight:"800"}],
+  "body-md":["16px",{lineHeight:"24px",fontWeight:"400"}]
+}}}}
+</script>
+</head>
+<body class="bg-background text-on-surface font-sans overflow-hidden h-screen">
+
+<!-- HEADER -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.08)]">
+  <div class="flex items-center gap-6">
+    <span class="text-[28px] font-black tracking-tighter text-primary-container" style="text-shadow:0 0 20px rgba(0,229,255,0.8)">PHOENIX GRID</span>
+    <div class="hidden md:flex items-center bg-surface-container-high/50 px-4 py-2 border border-outline-variant/30 rounded">
+      <span class="material-symbols-outlined text-outline mr-2 text-[18px]">search</span>
+      <input class="bg-transparent border-none focus:ring-0 font-mono text-[13px] text-on-surface-variant w-64 placeholder:text-outline/50" placeholder="QUERY DEPENDENCY TREE..." type="text"/>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div id="threat-badge" class="px-4 py-2 bg-error/15 border border-error/40 rounded flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+      <span class="font-mono text-[11px] text-error uppercase tracking-wider">THREAT LVL: CRITICAL</span>
+    </div>
+    <button class="px-3 py-1.5 bg-primary-container/10 border border-primary-container/40 font-mono text-[11px] text-primary-container uppercase hover:brightness-110 transition-all">OPS: ALPHA</button>
+    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">settings</span></button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col w-[260px] bg-surface-container-lowest/90 backdrop-blur-md border-r border-outline-variant/20">
+  <div class="p-6 border-b border-outline-variant/10 flex items-center gap-3">
+    <div class="w-10 h-10 rounded bg-primary-container/20 border border-primary-container/60 flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary-container">shield_person</span>
+    </div>
+    <div><div class="font-bold text-primary text-[16px]">PHX-CMD</div><div class="font-mono text-[11px] text-outline uppercase">Sector 7G</div></div>
+  </div>
+  <div class="flex-1 overflow-y-auto py-2">
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-mono text-[11px] uppercase tracking-widest">Command</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">map</span><span class="font-mono text-[11px] uppercase tracking-widest">Smart Map</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">hub</span><span class="font-mono text-[11px] uppercase tracking-widest">Mesh Net</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-primary-container border-l-4 border-primary-container bg-primary-container/10" href="#"><span class="material-symbols-outlined text-[20px]">psychology</span><span class="font-mono text-[11px] uppercase tracking-widest">Causality</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">emergency</span><span class="font-mono text-[11px] uppercase tracking-widest">Rescue Ops</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">handshake</span><span class="font-mono text-[11px] uppercase tracking-widest">Aid Center</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">precision_manufacturing</span><span class="font-mono text-[11px] uppercase tracking-widest">Infrastructure</span></a>
+  </div>
+  <div class="p-4 border-t border-outline-variant/10">
+    <button class="w-full bg-primary-container text-on-primary-container py-3 font-mono text-[11px] uppercase tracking-widest font-bold hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] rounded-sm">INITIATE BROADCAST</button>
+    <div class="flex justify-around mt-3">
+      <button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">support_agent</span></button>
+      <button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">terminal</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="ml-[260px] pt-20 h-screen overflow-y-auto bg-surface-dim">
+<div class="p-8 grid grid-cols-12 gap-6">
+
+  <!-- HERO ROW -->
+  <div class="col-span-12 flex justify-between items-end">
+    <div>
+      <h1 class="text-[48px] font-black tracking-tighter text-primary-container uppercase" style="text-shadow:0 0 30px rgba(0,229,255,0.4)">Ripple Impact Engine</h1>
+      <p class="text-[16px] text-on-surface-variant max-w-2xl mt-1">High-fidelity predictive modeling of critical infrastructure cascading failures. AI-driven causality mapping across Sector 7G — GoF: <span class="text-primary font-mono text-[13px]">Composite</span> + <span class="text-secondary font-mono text-[13px]">Bridge</span> Patterns.</p>
+    </div>
+    <div class="glass-panel p-5 rounded-xl text-right min-w-[200px]">
+      <div class="font-mono text-[11px] text-outline uppercase">CURRENT THREAT LEVEL</div>
+      <div id="threat-level-display" class="font-bold text-[28px] text-error mt-1">CRITICAL / <span id="threat-num">04</span></div>
+      <div class="font-mono text-[11px] text-error/60 mt-0.5">LEVEL 4 CASCADE ACTIVE</div>
+    </div>
+  </div>
+
+  <!-- MAIN CANVAS (col-span-8) -->
+  <div class="col-span-12 lg:col-span-8 glass-panel rounded-xl overflow-hidden scan-anim relative" style="height:620px">
+    <div class="absolute top-4 left-4 z-10 flex gap-2 pointer-events-none">
+      <span class="px-3 py-1 bg-surface-container-highest/80 border border-outline-variant/50 font-mono text-[11px] text-primary rounded-full flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span> LIVE CASCADE FEED
+      </span>
+      <span class="px-3 py-1 bg-primary-container/10 border border-primary-container/30 font-mono text-[11px] text-primary-container rounded-full">GRID: 7G-TACTICAL</span>
+    </div>
+    <div class="absolute top-4 right-4 z-10 text-right font-mono text-[11px] text-primary/50 pointer-events-none">
+      LAT: 34.0522° N<br>LNG: 118.2437° W<br>ALT: 1240m MSL
+    </div>
+    <div id="canvas-status" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 font-mono text-[11px] text-primary-fixed-dim/70 pointer-events-none"></div>
+    <canvas id="causalityCanvas" class="w-full h-full block" style="cursor:pointer"></canvas>
+    <!-- Controls -->
+    <div class="absolute bottom-4 right-4 z-10 flex gap-2">
+      <button onclick="simulateFailure()" class="px-3 py-2 bg-error-container/80 border border-error/50 text-error font-mono text-[11px] uppercase hover:brightness-110 active:scale-95 transition-all backdrop-blur">SIMULATE FAILURE</button>
+      <button onclick="restoreSystem()" class="px-3 py-2 bg-tertiary-container/20 border border-tertiary/40 text-tertiary-fixed-dim font-mono text-[11px] uppercase hover:brightness-110 active:scale-95 transition-all backdrop-blur">RESTORE</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL (col-span-4) -->
+  <div class="col-span-12 lg:col-span-4 flex flex-col gap-4">
+    <!-- AI Impact Projection -->
+    <div class="glass-panel rounded-xl p-5 flex-1">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-primary-container animate-pulse text-[20px]">electric_bolt</span>
+        <h3 class="font-bold text-[16px] text-on-surface">AI PROJECTION</h3>
+        <span class="font-mono text-[10px] text-outline uppercase ml-auto">GoF: COMPOSITE</span>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between font-mono text-[11px] mb-1.5">
+            <span class="text-outline uppercase">Systemic Stability</span>
+            <span id="stability-label" class="text-error">12% — CRITICAL</span>
+          </div>
+          <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div id="stability-bar" class="h-full bg-error rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(255,180,171,0.5)]" style="width:12%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between font-mono text-[11px] mb-1.5">
+            <span class="text-outline uppercase">Recovery Probability</span>
+            <span id="recovery-label" class="text-tertiary-fixed-dim">34% — LOW</span>
+          </div>
+          <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div id="recovery-bar" class="h-full bg-tertiary-fixed-dim rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(60,227,106,0.4)]" style="width:34%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between font-mono text-[11px] mb-1.5">
+            <span class="text-outline uppercase">Cascade Velocity</span>
+            <span id="cascade-label" class="text-error">HIGH — 12 km/hr</span>
+          </div>
+          <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div id="cascade-bar" class="h-full bg-error/60 rounded-full transition-all duration-1000" style="width:74%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 p-3 bg-primary/5 border-l-4 border-primary rounded-r-lg">
+        <div id="ai-advisory" class="font-mono text-[12px] text-primary overflow-y-auto" style="max-height:80px">
+          <span class="font-bold">[AI ADVISORY]:</span> Power Plant Gen-A failure triggering Level 4 ripple. Hospital backup systems at 4.2hr capacity. Dead-zones expanding at 12km/hr.
+        </div>
+      </div>
+    </div>
+
+    <!-- Dependency Depth Meter -->
+    <div class="glass-panel rounded-xl p-5">
+      <div class="flex justify-between items-center mb-4">
+        <span class="font-mono text-[11px] text-outline uppercase">Dependency Depth</span>
+        <span class="font-mono text-[13px] text-on-surface" id="dep-depth">5 Tiers</span>
+      </div>
+      <div class="flex items-end gap-2 h-24">
+        <div class="flex-1 rounded-t bg-tertiary/20 border-t-2 border-tertiary" style="height:20%"></div>
+        <div class="flex-1 rounded-t bg-tertiary/20 border-t-2 border-tertiary" style="height:40%"></div>
+        <div class="flex-1 rounded-t border-t-2 border-primary-container shadow-[0_0_12px_rgba(0,229,255,0.4)]" style="height:65%;background:rgba(0,229,255,0.25)"></div>
+        <div class="flex-1 rounded-t bg-error/30 border-t-2 border-error shadow-[0_0_12px_rgba(255,180,171,0.4)]" style="height:95%"></div>
+        <div class="flex-1 rounded-t bg-error/30 border-t-2 border-error" style="height:80%"></div>
+      </div>
+      <div class="mt-2 grid grid-cols-5 text-center font-mono text-[10px] text-outline">
+        <span>T1</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span>
+      </div>
+    </div>
+
+    <!-- Live Counters -->
+    <div class="glass-panel rounded-xl p-5">
+      <h3 class="font-mono text-[11px] text-outline uppercase mb-4">Cascade Impact Counters</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-surface-container-high/50 p-3 rounded-lg border border-outline-variant/20 text-center">
+          <div class="font-mono text-[10px] text-outline uppercase">Primary Failures</div>
+          <div id="cnt-failures" class="font-bold text-[22px] text-error mt-1">1</div>
+        </div>
+        <div class="bg-surface-container-high/50 p-3 rounded-lg border border-outline-variant/20 text-center">
+          <div class="font-mono text-[10px] text-outline uppercase">Cascade Depth</div>
+          <div id="cnt-depth" class="font-bold text-[22px] text-primary-fixed-dim mt-1">3</div>
+        </div>
+        <div class="bg-surface-container-high/50 p-3 rounded-lg border border-outline-variant/20 text-center">
+          <div class="font-mono text-[10px] text-outline uppercase">Civilians Affected</div>
+          <div id="cnt-civilians" class="font-bold text-[22px] text-error mt-1">14,204</div>
+        </div>
+        <div class="bg-surface-container-high/50 p-3 rounded-lg border border-outline-variant/20 text-center">
+          <div class="font-mono text-[10px] text-outline uppercase">Est. Recovery</div>
+          <div id="cnt-recovery" class="font-bold text-[22px] text-on-surface mt-1">48h</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BENTO BOTTOM ROW -->
+  <div class="col-span-12 grid grid-cols-4 gap-4">
+    <!-- Primary Failure -->
+    <div class="glass-panel rounded-xl p-5">
+      <div class="font-mono text-[11px] text-outline uppercase mb-3">Primary Failure</div>
+      <div class="flex items-center gap-3 mb-3">
+        <span class="material-symbols-outlined text-error text-[40px]" style="font-size:36px">factory</span>
+        <div>
+          <div class="font-bold text-[18px] text-on-surface">Power Gen-A</div>
+          <div class="font-mono text-[11px] text-error uppercase">OFFLINE / BREACH</div>
+        </div>
+      </div>
+      <div class="font-mono text-[11px] text-outline">GoF: <span class="text-primary">Composite</span> root node destroyed</div>
+    </div>
+    <!-- Comms Degradation -->
+    <div class="glass-panel rounded-xl p-5 relative overflow-hidden cursor-pointer group hover:border-primary/40 transition-all">
+      <div class="font-mono text-[11px] text-outline uppercase mb-2">Comms Degradation</div>
+      <div class="font-black text-[42px] text-primary-container leading-none">-68<span class="text-[18px]">%</span></div>
+      <div class="font-mono text-[12px] text-on-surface-variant mt-2">Signal-to-Noise Ratio dropping. Dead-zone expanding.</div>
+      <div class="absolute bottom-3 right-3 text-primary-container/30 group-hover:text-primary-container/60 transition-all">
+        <span class="material-symbols-outlined text-[56px]">signal_cellular_alt_2_bar</span>
+      </div>
+    </div>
+    <!-- Hospital Criticality -->
+    <div class="glass-panel rounded-xl p-5">
+      <div class="font-mono text-[11px] text-outline uppercase mb-3">Hospital Criticality</div>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-error animate-ping"></div>
+          <span class="font-mono text-[12px] text-on-surface">ICU: BACKUP POWER ON</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-primary-fixed-dim"></div>
+          <span class="font-mono text-[12px] text-on-surface">ER: FULL CAPACITY</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-error"></div>
+          <span class="font-mono text-[12px] text-on-surface">MED-AIR: GROUNDED</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></div>
+          <span class="font-mono text-[12px] text-on-surface">OT-BLOCK: STANDBY</span>
+        </div>
+      </div>
+    </div>
+    <!-- Population Relocation -->
+    <div class="glass-panel rounded-xl p-5 relative overflow-hidden">
+      <div class="font-mono text-[11px] text-outline uppercase mb-2">Pop. Relocation</div>
+      <div class="font-bold text-[32px] text-on-surface" id="pop-count">14,204</div>
+      <div class="font-mono text-[11px] text-primary uppercase mt-1">ASSIGNED → SHELTER 4</div>
+      <div class="font-mono text-[11px] text-outline mt-2">GoF: <span class="text-secondary">Bridge</span> — static facility tracked</div>
+      <div class="absolute -right-4 -bottom-4 opacity-10">
+        <span class="material-symbols-outlined text-primary" style="font-size:100px">radar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRIDGE PATTERN ASSET TRACKER TABLE -->
+  <div class="col-span-12 glass-panel rounded-xl overflow-hidden">
+    <div class="p-5 border-b border-outline-variant/20">
+      <h3 class="font-bold text-[20px] text-primary">Infrastructure Asset Bridge Tracker</h3>
+      <p class="font-mono text-[11px] text-outline mt-0.5">GoF Pattern: Bridge — Decouples asset abstraction from physical tracking implementation (Static vs Mobile)</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="bg-surface-container-high/50 border-b border-outline-variant/10">
+            <th class="p-4 font-mono text-[11px] text-outline uppercase">Asset ID</th>
+            <th class="p-4 font-mono text-[11px] text-outline uppercase">Abstraction Type</th>
+            <th class="p-4 font-mono text-[11px] text-outline uppercase">Bridge Impl.</th>
+            <th class="p-4 font-mono text-[11px] text-outline uppercase">Position</th>
+            <th class="p-4 font-mono text-[11px] text-outline uppercase">Status</th>
+            <th class="p-4 font-mono text-[11px] text-outline uppercase">Impact Score</th>
+          </tr>
+        </thead>
+        <tbody id="bridge-table" class="divide-y divide-white/5"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<!-- FOOTER -->
+<footer class="fixed bottom-0 left-0 py-3 px-8 flex justify-between items-center bg-surface-dim border-t border-outline-variant/10 z-50" style="width:calc(100% - 260px);margin-left:260px">
+  <span class="font-mono text-[11px] text-outline">© 2024 PHOENIX GRID TACTICAL SYSTEMS — ENCRYPTED P2P CHANNEL ACTIVE</span>
+  <div class="flex gap-6">
+    <a href="#" class="font-mono text-[11px] text-primary uppercase hover:text-tertiary transition-colors">Network Protocol</a>
+    <a href="#" class="font-mono text-[11px] text-outline uppercase hover:text-tertiary transition-colors">Terms of Engagement</a>
+    <span class="font-mono text-[11px] text-outline border border-outline/20 px-2 py-0.5">v2.4.0-STABLE</span>
+  </div>
+</footer>
+
+<!-- ═══════════════ JAVASCRIPT — GoF: Composite + Bridge ═══════════════ -->
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+// GoF PATTERN: Composite
+// InfrastructureComponent — uniform interface for both composite
+// nodes (have children) and leaf nodes (no children)
+// ─────────────────────────────────────────────────────────────
+class InfrastructureComponent {
+  constructor(id, name, type, tier) {
+    this.id = id; this.name = name; this.type = type; this.tier = tier;
+    this.status = 'OPERATIONAL'; // OPERATIONAL | DEGRADED | CRITICAL | DESTROYED
+    this.children = [];
+    this.parent = null;
+    this.impactScore = 0;
+    this.civilians = Math.floor(Math.random() * 8000) + 500;
+    // Canvas rendering position (set at layout time)
+    this.x = 0; this.y = 0; this.ripples = [];
+  }
+  // GoF Composite: add child to composite node
+  add(component) {
+    component.parent = this;
+    this.children.push(component);
+    return this;
+  }
+  // GoF Composite: remove child by id
+  remove(id) {
+    this.children = this.children.filter(c => c.id !== id);
+  }
+  // GoF Composite: recursive status check — worst child bubbles up
+  getStatus() {
+    if (this.children.length === 0) return this.status;
+    const childStatuses = this.children.map(c => c.getStatus());
+    if (childStatuses.includes('DESTROYED')) return this.status === 'DESTROYED' ? 'DESTROYED' : 'CRITICAL';
+    if (childStatuses.includes('CRITICAL')) return this.status === 'DESTROYED' ? 'DESTROYED' : 'CRITICAL';
+    return this.status;
+  }
+  // GoF Composite: recursive impact score calculation
+  getImpactScore() {
+    if (this.children.length === 0) return this.impactScore;
+    const childTotal = this.children.reduce((sum, c) => sum + c.getImpactScore(), 0);
+    return Math.min(100, this.impactScore + childTotal * 0.5);
+  }
+  // GoF Composite: propagate failure downward through the entire subtree
+  propagateFailure(newStatus, decayFactor = 0.85) {
+    this.status = newStatus;
+    this.ripples.push({ r: 8, alpha: 0.9, color: statusColor(newStatus) });
+    this.children.forEach(child => {
+      const childStatus = newStatus === 'DESTROYED' ? 'CRITICAL' : 'DEGRADED';
+      // Each tier down has reduced severity (Bridge decays impact)
+      setTimeout(() => child.propagateFailure(childStatus, decayFactor * 0.9), 600);
+    });
+  }
+  // GoF Composite: restore subtree
+  restore() {
+    this.status = 'OPERATIONAL'; this.impactScore = 0;
+    this.children.forEach(c => c.restore());
+  }
+  isLeaf() { return this.children.length === 0; }
+  getAllDescendants() {
+    let list = [];
+    this.children.forEach(c => { list.push(c); list = list.concat(c.getAllDescendants()); });
+    return list;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// GoF PATTERN: Bridge
+// Decouples the asset abstraction layer from the physical tracking
+// implementation — allows mixing static and mobile assets uniformly
+// ─────────────────────────────────────────────────────────────
+
+// Implementation A: Static Facility (fixed coordinates, structural health)
+class StaticFacilityTracking {
+  constructor(lat, lon, capacity, structuralHealth) {
+    this.lat = lat; this.lon = lon; this.capacity = capacity;
+    this.structuralHealth = structuralHealth; // 0-100
+    this.occupancy = Math.floor(Math.random() * capacity);
+  }
+  getPosition() { return { lat: this.lat, lon: this.lon, altitude: 0, type: 'FIXED' }; }
+  getStatus() { return { health: this.structuralHealth, occupancy: this.occupancy, power: this.structuralHealth > 30, type: 'STATIC' }; }
+  getMetrics() { return { capacity: this.capacity, occupancy: this.occupancy, health: this.structuralHealth + '%' }; }
+}
+
+// Implementation B: Mobile Asset (simulated GPS movement, fuel/battery)
+class MobileAssetTracking {
+  constructor(vehicleId, vehicleType, startLat, startLon) {
+    this.vehicleId = vehicleId; this.vehicleType = vehicleType;
+    this.lat = startLat; this.lon = startLon;
+    this.speed = 20 + Math.random() * 60;
+    this.heading = Math.random() * 360;
+    this.fuel = 40 + Math.floor(Math.random() * 60);
+    this.battery = 30 + Math.floor(Math.random() * 70);
+  }
+  getPosition() {
+    // Simulate movement
+    this.lat += (Math.random() - 0.5) * 0.0002;
+    this.lon += (Math.random() - 0.5) * 0.0002;
+    return { lat: this.lat.toFixed(4), lon: this.lon.toFixed(4), speed: this.speed.toFixed(1), heading: this.heading.toFixed(0), type: 'MOBILE' };
+  }
+  getStatus() { return { fuel: this.fuel, battery: this.battery, operational: this.fuel > 5, type: 'MOBILE' }; }
+  getMetrics() { return { fuel: this.fuel + '%', battery: this.battery + '%', speed: this.speed.toFixed(1) + ' km/h' }; }
+}
+
+// Abstraction: AssetTracker — bridges the two implementations
+class AssetTracker {
+  // GoF Bridge: holds reference to implementation, delegates all calls
+  constructor(name, trackingImpl) { this.name = name; this.impl = trackingImpl; }
+  getPosition() { return this.impl.getPosition(); }
+  getStatus()   { return this.impl.getStatus(); }
+  getMetrics()  { return this.impl.getMetrics(); }
+}
+
+// Refined Abstractions (extend AssetTracker for domain-specific behavior)
+class PowerPlantAsset extends AssetTracker {
+  constructor() { super('Power Gen-A', new StaticFacilityTracking(34.0521, -118.244, 5000, 8)); }
+  getCapacity() { return 'MW OUTPUT'; }
+}
+class SubstationAsset extends AssetTracker {
+  constructor(id, lat, lon) { super(`Substation-${id}`, new StaticFacilityTracking(lat, lon, 2000, 45)); }
+}
+class HospitalAsset extends AssetTracker {
+  constructor() { super('St. Jude Med', new StaticFacilityTracking(34.0519, -118.250, 800, 62)); }
+}
+class DroneAsset extends AssetTracker {
+  constructor(id) { super(`Drone-${id}`, new MobileAssetTracking(`DR-${id}`, 'AERIAL', 34.053, -118.242)); }
+}
+class AmbulanceAsset extends AssetTracker {
+  constructor(id) { super(`Ambulance-${id}`, new MobileAssetTracking(`AMB-${id}`, 'GROUND', 34.055, -118.246)); }
+}
+class WaterStationAsset extends AssetTracker {
+  constructor() { super('Water Pump-B', new StaticFacilityTracking(34.0515, -118.248, 10000, 78)); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// BUILD THE COMPOSITE INFRASTRUCTURE TREE
+// ─────────────────────────────────────────────────────────────
+const root = new InfrastructureComponent('PG-A', 'Power Generation Plant', 'POWER', 1);
+root.civilians = 250000; root.impactScore = 100;
+
+const substationA = new InfrastructureComponent('SUB-A', 'Substation Alpha', 'ELECTRICAL', 2);
+const substationB = new InfrastructureComponent('SUB-B', 'Substation Beta', 'ELECTRICAL', 2);
+substationA.civilians = 85000; substationA.impactScore = 60;
+substationB.civilians = 92000; substationB.impactScore = 55;
+
+const commsNorth = new InfrastructureComponent('COM-N', 'Comms Tower North', 'COMMS', 3);
+const commsSouth = new InfrastructureComponent('COM-S', 'Comms Tower South', 'COMMS', 3);
+const waterPump  = new InfrastructureComponent('WAT-B', 'Water Pumping Station', 'WATER', 3);
+const transitCtl = new InfrastructureComponent('TRN-1', 'Transit Control Hub', 'TRANSIT', 3);
+commsNorth.civilians = 22000; commsNorth.impactScore = 40;
+commsSouth.civilians = 18000; commsSouth.impactScore = 35;
+waterPump.civilians  = 45000; waterPump.impactScore = 50;
+transitCtl.civilians = 30000; transitCtl.impactScore = 30;
+
+const medHubA  = new InfrastructureComponent('MED-A', 'Safe Zone Medical Hub A', 'MEDICAL', 4);
+const shelterB = new InfrastructureComponent('SHT-B', 'Safe Zone Shelter B', 'SHELTER', 4);
+const hospital = new InfrastructureComponent('HSP-1', 'Emergency Hospital Center', 'MEDICAL', 4);
+const evacRoute= new InfrastructureComponent('EVA-1', 'Evacuation Route Alpha', 'TRANSPORT', 4);
+medHubA.civilians  = 8500; medHubA.impactScore  = 25;
+shelterB.civilians = 7200; shelterB.impactScore = 20;
+hospital.civilians = 12000; hospital.impactScore = 45;
+evacRoute.civilians= 6000; evacRoute.impactScore = 15;
+
+// GoF Composite: assemble the tree
+substationA.add(commsNorth).add(commsSouth);
+substationB.add(waterPump).add(transitCtl);
+commsNorth.add(medHubA);
+commsSouth.add(shelterB);
+waterPump.add(hospital);
+transitCtl.add(evacRoute);
+root.add(substationA).add(substationB);
+
+// Flatten tree for iteration
+function flattenTree(node, list = []) {
+  list.push(node);
+  node.children.forEach(c => flattenTree(c, list));
+  return list;
+}
+const allNodes = flattenTree(root);
+
+// Bridge assets (one per infrastructure node for correlation)
+const bridgeAssets = [
+  { asset: new PowerPlantAsset(), node: root, implType: 'StaticFacilityTracking' },
+  { asset: new SubstationAsset('A', 34.052, -118.243), node: substationA, implType: 'StaticFacilityTracking' },
+  { asset: new SubstationAsset('B', 34.051, -118.245), node: substationB, implType: 'StaticFacilityTracking' },
+  { asset: new DroneAsset('07'), node: commsNorth, implType: 'MobileAssetTracking' },
+  { asset: new AmbulanceAsset('12'), node: medHubA, implType: 'MobileAssetTracking' },
+  { asset: new WaterStationAsset(), node: waterPump, implType: 'StaticFacilityTracking' },
+  { asset: new HospitalAsset(), node: hospital, implType: 'StaticFacilityTracking' },
+];
+
+// ─────────────────────────────────────────────────────────────
+// CANVAS RENDERER
+// ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('causalityCanvas');
+const ctx = canvas.getContext('2d');
+
+function statusColor(s) {
+  return { OPERATIONAL:'#3ce36a', DEGRADED:'#FF9F00', CRITICAL:'#ffb4ab', DESTROYED:'#93000a' }[s] || '#849396';
+}
+function statusGlow(s) {
+  return { OPERATIONAL:'rgba(60,227,106,0.6)', DEGRADED:'rgba(255,159,0,0.6)', CRITICAL:'rgba(255,180,171,0.8)', DESTROYED:'rgba(147,0,10,0.9)' }[s] || 'rgba(132,147,150,0.4)';
+}
+
+function resizeCanvas() {
+  const r = canvas.parentElement.getBoundingClientRect();
+  canvas.width = r.width; canvas.height = r.height;
+  layoutTree();
+}
+
+function layoutTree() {
+  const W = canvas.width, H = canvas.height;
+  const tiers = [[root],[substationA,substationB],[commsNorth,commsSouth,waterPump,transitCtl],[medHubA,shelterB,hospital,evacRoute]];
+  const tierYs = [0.18, 0.38, 0.62, 0.84];
+  tiers.forEach((tier, ti) => {
+    const y = H * tierYs[ti];
+    const xStep = W / (tier.length + 1);
+    tier.forEach((node, ni) => { node.x = xStep * (ni + 1); node.y = y; });
+  });
+}
+
+let elapsed = 0;
+function drawBackground() {
+  ctx.fillStyle = 'rgba(9,14,27,0.95)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // dot grid
+  ctx.fillStyle = 'rgba(0,229,255,0.03)';
+  for (let x=0;x<canvas.width;x+=30) for (let y=0;y<canvas.height;y+=30) {
+    ctx.beginPath(); ctx.arc(x,y,1,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawEdges() {
+  allNodes.forEach(node => {
+    node.children.forEach(child => {
+      ctx.beginPath();
+      ctx.moveTo(node.x, node.y); ctx.lineTo(child.x, child.y);
+      const isAffected = node.status !== 'OPERATIONAL' || child.status !== 'OPERATIONAL';
+      ctx.strokeStyle = isAffected ? 'rgba(255,180,171,0.5)' : 'rgba(0,229,255,0.25)';
+      ctx.setLineDash(isAffected ? [6,4] : []);
+      ctx.lineDashOffset = isAffected ? -(elapsed * 0.6) : 0;
+      ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    });
+  });
+}
+
+function drawNode(node) {
+  const color = statusColor(node.status);
+  const glow  = statusGlow(node.status);
+  const r = node.tier === 1 ? 18 : node.tier === 2 ? 13 : node.tier === 3 ? 10 : 8;
+
+  // Glow halo
+  const grad = ctx.createRadialGradient(node.x,node.y,0,node.x,node.y,r*3);
+  grad.addColorStop(0, glow.replace(')',',0.25)').replace('rgba','rgba')); grad.addColorStop(1,'transparent');
+  ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(node.x,node.y,r*3,0,Math.PI*2); ctx.fill();
+
+  // Node body
+  ctx.beginPath(); ctx.arc(node.x,node.y,r,0,Math.PI*2);
+  if (node.status === 'DESTROYED') {
+    ctx.fillStyle = '#93000a';
+  } else {
+    ctx.fillStyle = color + '30';
+  }
+  ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth = node.tier===1 ? 2.5 : 1.5;
+  if (node.isLeaf()) { ctx.setLineDash([3,3]); }
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Ripples
+  node.ripples = node.ripples.filter(rp => rp.alpha > 0.02);
+  node.ripples.forEach(rp => {
+    ctx.beginPath(); ctx.arc(node.x,node.y,rp.r,0,Math.PI*2);
+    ctx.strokeStyle = rp.color + Math.floor(rp.alpha*255).toString(16).padStart(2,'0');
+    ctx.lineWidth = 1.5; ctx.stroke();
+    rp.r += 2.8; rp.alpha -= 0.022;
+  });
+
+  // Label
+  ctx.font = `${node.tier===1?'700':'500'} ${node.tier===1?12:10}px "JetBrains Mono"`;
+  ctx.fillStyle = color; ctx.textAlign = 'center';
+  ctx.fillText(node.name, node.x, node.y + r + 14);
+  if (node.tier < 4) {
+    ctx.font = '400 9px "JetBrains Mono"';
+    ctx.fillStyle = 'rgba(132,147,150,0.7)';
+    ctx.fillText(node.status, node.x, node.y + r + 24);
+  }
+}
+
+function drawFrame() {
+  elapsed++;
+  drawBackground();
+  drawEdges();
+  allNodes.forEach(drawNode);
+  requestAnimationFrame(drawFrame);
+}
+
+// Click detection
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  let hit = null, hitDist = Infinity;
+  allNodes.forEach(n => {
+    const d = Math.hypot(n.x - mx, n.y - my);
+    if (d < 24 && d < hitDist) { hit = n; hitDist = d; }
+  });
+  if (hit) {
+    const path = getAncestorPath(hit).map(n=>n.name).join(' → ');
+    document.getElementById('ai-advisory').innerHTML = `<span class="font-bold">[SELECTED: ${hit.name}]</span><br>Tier ${hit.tier} | Status: ${hit.status} | Civilians: ${hit.civilians.toLocaleString()}<br><span class="text-outline/60">Path: ${path}</span>`;
+    if (hit.status === 'OPERATIONAL') {
+      hit.status = 'CRITICAL';
+      hit.ripples.push({r:8,alpha:0.9,color:'#ffb4ab'});
+      setTimeout(() => propagateFromNode(hit), 400);
+    }
+  }
+});
+
+function getAncestorPath(node) {
+  const path = [node];
+  let cur = node;
+  while (cur.parent) { path.unshift(cur.parent); cur = cur.parent; }
+  return path;
+}
+
+function propagateFromNode(node) {
+  node.propagateFailure(node.status === 'DESTROYED' ? 'DESTROYED' : 'CRITICAL');
+  updateCounters();
+  updateBridgeTable();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Simulate full failure from root
+// ─────────────────────────────────────────────────────────────
+function simulateFailure() {
+  root.status = 'DESTROYED';
+  root.ripples.push({r:10,alpha:1.0,color:'#ffb4ab'},{r:20,alpha:0.7,color:'#ffb4ab'},{r:32,alpha:0.4,color:'#93000a'});
+  document.getElementById('canvas-status').textContent = '⚠ ANALYZING CASCADE FAILURE...';
+  document.getElementById('ai-advisory').innerHTML = '<span class="font-bold text-error">[CRITICAL EVENT]:</span> Root node Power Gen-A destroyed. Running full Composite subtree propagation now. All downstream infrastructure entering cascade failure mode.';
+  root.propagateFailure('DESTROYED');
+  updateCounters();
+  setTimeout(() => { document.getElementById('canvas-status').textContent = ''; updateBridgeTable(); }, 3000);
+}
+
+function restoreSystem() {
+  allNodes.forEach(n => { n.status = 'OPERATIONAL'; n.ripples = []; });
+  document.getElementById('ai-advisory').innerHTML = '<span class="font-bold text-tertiary-fixed-dim">[SYSTEM RESTORED]:</span> All Composite nodes reset to OPERATIONAL. Bridge trackers nominal.';
+  document.getElementById('cnt-failures').textContent = '0';
+  document.getElementById('cnt-depth').textContent = '0';
+  document.getElementById('cnt-civilians').textContent = '0';
+  document.getElementById('cnt-recovery').textContent = '—';
+  updateBridgeTable();
+}
+
+function updateCounters() {
+  const failed = allNodes.filter(n => n.status !== 'OPERATIONAL').length;
+  const maxDepth = Math.max(...allNodes.filter(n=>n.status!=='OPERATIONAL').map(n=>n.tier), 0);
+  const totalCivilians = allNodes.filter(n=>n.status!=='OPERATIONAL').reduce((s,n)=>s+n.civilians,0);
+  document.getElementById('cnt-failures').textContent = failed;
+  document.getElementById('cnt-depth').textContent = maxDepth;
+  document.getElementById('cnt-civilians').textContent = totalCivilians.toLocaleString();
+  document.getElementById('cnt-recovery').textContent = (failed * 12) + 'h';
+  // Update bars
+  const stability = Math.max(5, 100 - failed * 10);
+  document.getElementById('stability-bar').style.width = stability + '%';
+  document.getElementById('stability-label').textContent = stability + '% — ' + (stability < 20 ? 'CRITICAL' : stability < 50 ? 'DEGRADED' : 'STABLE');
+}
+
+function updateBridgeTable() {
+  const tbody = document.getElementById('bridge-table');
+  if (!tbody) return;
+  tbody.innerHTML = bridgeAssets.map(({asset,node,implType}) => {
+    const pos = asset.getPosition();
+    const status = asset.getStatus();
+    const nodeStatus = node.status;
+    const sc = nodeStatus === 'OPERATIONAL' ? 'text-tertiary-fixed-dim bg-tertiary/10 border-tertiary/30' :
+               nodeStatus === 'CRITICAL'     ? 'text-error bg-error/10 border-error/30' :
+               nodeStatus === 'DESTROYED'    ? 'text-error bg-error-container/20 border-error/50' : 'text-primary-fixed-dim bg-primary/10 border-primary/30';
+    const implColor = implType === 'StaticFacilityTracking' ? 'text-secondary' : 'text-tertiary-fixed-dim';
+    const bridgeIcon = implType === 'StaticFacilityTracking' ? 'factory' : 'directions_car';
+    const posStr = pos.type === 'FIXED' ? `${pos.lat}°N, ${pos.lon}°W` : `${pos.lat}°N / ${pos.speed}km/h`;
+    const impact = Math.round(node.getImpactScore());
+    return `<tr class="hover:bg-primary/5 transition-colors group">
+      <td class="p-4 font-mono text-[13px] text-primary font-bold">${asset.name}</td>
+      <td class="p-4"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] ${implColor}">${bridgeIcon}</span><span class="font-mono text-[12px] text-on-surface">${pos.type==='FIXED'?'PowerPlantAsset / SubstationAsset':'DroneAsset / AmbulanceAsset'}</span></div></td>
+      <td class="p-4"><span class="font-mono text-[11px] px-2 py-1 border rounded ${implColor}">${implType}</span></td>
+      <td class="p-4 font-mono text-[12px] text-on-surface-variant">${posStr}</td>
+      <td class="p-4"><span class="px-2 py-1 rounded-full font-mono text-[10px] font-bold border ${sc}">${nodeStatus}</span></td>
+      <td class="p-4"><div class="flex items-center gap-2"><div class="h-1.5 flex-1 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-error rounded-full" style="width:${impact}%"></div></div><span class="font-mono text-[12px] text-on-surface">${impact}</span></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  resizeCanvas();
+  drawFrame();
+  updateBridgeTable();
+  // Auto degrade one random leaf every 6 seconds
+  setInterval(() => {
+    const leaves = allNodes.filter(n => n.isLeaf() && n.status === 'OPERATIONAL');
+    if (leaves.length > 0) {
+      const target = leaves[Math.floor(Math.random()*leaves.length)];
+      target.status = 'DEGRADED';
+      target.ripples.push({r:8,alpha:0.7,color:'#FF9F00'});
+      updateCounters(); updateBridgeTable();
+    }
+  }, 7000);
+  // Bridge metrics refresh
+  setInterval(() => updateBridgeTable(), 3000);
+});
+window.addEventListener('resize', resizeCanvas);
+</script>
+</body>
+</html>

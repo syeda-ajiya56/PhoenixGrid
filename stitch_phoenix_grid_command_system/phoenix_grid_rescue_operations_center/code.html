@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | Rescue Ops Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .drop-shadow-glow {
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+        }
+        .inner-glow {
+            box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.1);
+        }
+        .scanning-line {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanning-line::after {
+            content: "";
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.05), transparent);
+            animation: scan 3s infinite linear;
+        }
+        @keyframes scan {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+        .ai-pulse {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#849396",
+                      "inverse-on-surface": "#2b303e",
+                      "on-tertiary-fixed": "#002108",
+                      "on-surface": "#dee2f5",
+                      "on-error": "#690005",
+                      "on-tertiary-container": "#006727",
+                      "on-primary": "#00363d",
+                      "surface-container-lowest": "#090e1b",
+                      "primary": "#c3f5ff",
+                      "on-secondary-fixed-variant": "#004395",
+                      "on-primary-fixed-variant": "#004f58",
+                      "secondary-fixed": "#d8e2ff",
+                      "inverse-surface": "#dee2f5",
+                      "surface-container-high": "#252a38",
+                      "on-surface-variant": "#bac9cc",
+                      "surface-container-low": "#161b29",
+                      "primary-fixed-dim": "#00daf3",
+                      "outline-variant": "#3b494c",
+                      "on-secondary-fixed": "#001a42",
+                      "tertiary-fixed-dim": "#3ce36a",
+                      "surface-dim": "#0e1320",
+                      "primary-fixed": "#9cf0ff",
+                      "error": "#ffb4ab",
+                      "on-tertiary": "#003912",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary": "#002e6a",
+                      "surface": "#0e1320",
+                      "surface-variant": "#303443",
+                      "on-primary-fixed": "#001f24",
+                      "on-secondary-container": "#e6ecff",
+                      "surface-container-highest": "#303443",
+                      "surface-bright": "#343948",
+                      "primary-container": "#00e5ff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "surface-container": "#1a1f2d",
+                      "tertiary-container": "#49ed72",
+                      "error-container": "#93000a",
+                      "on-background": "#dee2f5",
+                      "secondary-container": "#0566d9",
+                      "secondary": "#adc6ff",
+                      "tertiary": "#b1ffb5",
+                      "on-primary-container": "#00626e",
+                      "tertiary-fixed": "#69ff87",
+                      "on-tertiary-fixed-variant": "#00531e",
+                      "inverse-primary": "#006875",
+                      "surface-tint": "#00daf3",
+                      "background": "#0e1320"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "margin-mobile": "16px",
+                      "container-gap": "24px",
+                      "unit": "4px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "mono-label-sm": ["JetBrains Mono"],
+                      "headline-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "mono-data-md": ["JetBrains Mono"],
+                      "display-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container/30 selection:text-primary min-h-screen overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-8">
+<span class="font-display-lg text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</span>
+<div class="hidden md:flex gap-6 items-center">
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container-high rounded border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary text-sm">network_check</span>
+<span class="font-mono-label-sm text-mono-label-sm">UPLINK: ACTIVE</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined">language</span>
+</button>
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="px-4 py-2 bg-primary-container/10 border border-primary-container text-primary-container font-mono-label-sm text-mono-label-sm rounded shadow-[0_0_15px_rgba(0,229,255,0.2)]">
+                OPS STATUS: ALPHA
+            </div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col bg-surface-container-lowest/80 backdrop-blur-md w-[260px] border-r border-outline-variant/20">
+<div class="p-6 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/20 rounded-full border border-primary/50 flex items-center justify-center overflow-hidden">
+<img alt="Commander Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional rescue commander in a high-tech tactical gear, wearing a headset with a glowing blue HUD interface reflected in dark glasses. The background is a dim, high-tech command center with holographic displays in shades of deep navy and neon cyan." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMiJa5dF5B645HkrMAsVyGnqpNKFS-yJH1zF3Ww2qXtfFD1G2uAoR1mfkRolhZ7WGZ50lZJVoSinL-nmy2zbP19rSuQalpuIkeNLyIwB3ShUhmCI_mq5SQ9ptlx_LM4LObeJi58WTVngqQe_hXA9yDy9hkPtDNfaxxAO3PQYQM5ffx5BJ9HziTpKF53IvMX-nvB0S8g84WMvFvM-WxyAtStAypP_biIAg2agNQPLdAuiXKmr6ktuzzLa0s_MHJtAbteQqXjfdW0go7"/>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary leading-tight">PHX-CMD</div>
+<div class="font-mono-label-sm text-mono-label-sm text-outline">Sector 7G</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Command</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Smart Map</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Mesh Net</span>
+</a>
+<a class="flex items-center gap-4 text-primary-container border-l-4 border-primary-container bg-primary-container/10 py-4 px-6 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Rescue Ops</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Aid Center</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Infrastructure</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Resources</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Analytics</span>
+</a>
+</nav>
+<div class="p-4 space-y-4">
+<button class="w-full bg-primary-container text-on-primary-container font-mono-label-sm text-mono-label-sm py-3 rounded-sm font-bold active:scale-95 transition-transform shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+                INITIATE BROADCAST
+            </button>
+<div class="flex justify-around border-t border-outline-variant/10 pt-4">
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">support_agent</span>
+</button>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">terminal</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[260px] pt-20 p-margin-desktop min-h-screen">
+<div class="max-w-[1600px] mx-auto space-y-container-gap">
+<!-- Bento Dashboard Header -->
+<div class="grid grid-cols-12 gap-container-gap">
+<!-- Mission Status Overview -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/20 rounded-lg p-6 flex flex-col justify-between relative overflow-hidden scanning-line">
+<div class="flex justify-between items-start z-10">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary-fixed mb-1 uppercase">Rescue Core Dashboard</h2>
+<p class="font-mono-data-md text-mono-data-md text-outline">Real-time tracking of 142 active field units across Sector 7G.</p>
+</div>
+<div class="flex gap-4">
+<div class="text-right">
+<div class="font-mono-label-sm text-mono-label-sm text-outline mb-1">GLOBAL THREAT LEVEL</div>
+<div class="flex gap-1">
+<div class="w-2 h-6 bg-tertiary-container"></div>
+<div class="w-2 h-6 bg-tertiary-container"></div>
+<div class="w-2 h-6 bg-tertiary-container/30"></div>
+<div class="w-2 h-6 bg-tertiary-container/30"></div>
+<div class="w-2 h-6 bg-tertiary-container/30"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 z-10">
+<div class="bg-surface-container-high/40 p-4 border-l-2 border-primary-container">
+<div class="font-mono-label-sm text-mono-label-sm text-outline">AMBULANCES</div>
+<div class="text-4xl font-display-lg text-primary">42 <span class="text-body-md font-mono-data-md text-tertiary-fixed-dim">/ 04 BUSY</span></div>
+</div>
+<div class="bg-surface-container-high/40 p-4 border-l-2 border-primary-container">
+<div class="font-mono-label-sm text-mono-label-sm text-outline">DRONE SWARMS</div>
+<div class="text-4xl font-display-lg text-primary">12 <span class="text-body-md font-mono-data-md text-tertiary-fixed-dim">/ ACTIVE</span></div>
+</div>
+<div class="bg-surface-container-high/40 p-4 border-l-2 border-primary-container">
+<div class="font-mono-label-sm text-mono-label-sm text-outline">FIRE UNITS</div>
+<div class="text-4xl font-display-lg text-primary">18 <span class="text-body-md font-mono-data-md text-error">/ 02 ALERTS</span></div>
+</div>
+<div class="bg-surface-container-high/40 p-4 border-l-2 border-primary-container">
+<div class="font-mono-label-sm text-mono-label-sm text-outline">MED TEAMS</div>
+<div class="text-4xl font-display-lg text-primary">64 <span class="text-body-md font-mono-data-md text-outline">/ STANDBY</span></div>
+</div>
+</div>
+</div>
+<!-- AI Pulse Tactical Widget -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/20 rounded-lg p-6 relative overflow-hidden inner-glow">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary-container ai-pulse">psychology</span>
+<span class="font-mono-label-sm text-mono-label-sm text-primary-container tracking-tighter">AI LOGISTICS ENGINE</span>
+</div>
+<div class="space-y-4">
+<div class="p-3 bg-surface-container-highest/50 border border-outline-variant/10 rounded">
+<p class="font-mono-data-md text-mono-data-md text-on-surface">Optimization: Suggested reroute for Convoy-Delta-9 due to gridlock on 5th Ave.</p>
+<button class="mt-2 text-primary text-mono-label-sm uppercase hover:underline">Apply Recommendation</button>
+</div>
+<div class="p-3 bg-surface-container-highest/50 border border-outline-variant/10 rounded opacity-60">
+<p class="font-mono-data-md text-mono-data-md text-on-surface">Analysis: 84% probability of medical resource shortage in Zone B within 2 hours.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Map and List Split -->
+<div class="grid grid-cols-12 gap-container-gap">
+<!-- Tactical List View -->
+<div class="col-span-12 xl:col-span-5 bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/20 rounded-lg overflow-hidden flex flex-col">
+<div class="p-4 bg-surface-container-high/60 border-b border-outline-variant/30 flex justify-between items-center">
+<span class="font-mono-label-sm text-mono-label-sm text-primary uppercase">Active Mission Log</span>
+<div class="flex gap-2">
+<span class="w-3 h-3 rounded-full bg-tertiary-fixed shadow-[0_0_8px_rgba(60,227,106,0.6)]"></span>
+<span class="font-mono-label-sm text-mono-label-sm text-tertiary-fixed-dim">LIVE DATA</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto max-h-[600px] divide-y divide-outline-variant/10">
+<!-- Unit Row 1 -->
+<div class="p-4 hover:bg-primary/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">ambulance</span>
+<span class="font-mono-data-md text-mono-data-md text-primary font-bold">AMB-702</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] bg-secondary-container/20 border border-secondary text-secondary-fixed-dim font-bold">EN ROUTE</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div>
+<div class="text-[10px] text-outline uppercase">Zone</div>
+<div class="font-mono-data-md text-on-surface">Quadrant B-4</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">ETA</div>
+<div class="font-mono-data-md text-primary-fixed-dim">04:12m</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">Capacity</div>
+<div class="font-mono-data-md text-on-surface">65%</div>
+</div>
+</div>
+</div>
+<!-- Unit Row 2 -->
+<div class="p-4 hover:bg-primary/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">flight_takeoff</span>
+<span class="font-mono-data-md text-mono-data-md text-primary font-bold">DRONE-09</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] bg-tertiary-container/10 border border-tertiary-container text-tertiary-fixed-dim font-bold">SCANNING</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div>
+<div class="text-[10px] text-outline uppercase">Zone</div>
+<div class="font-mono-data-md text-on-surface">Downtown</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">ETA</div>
+<div class="font-mono-data-md text-primary-fixed-dim">ON-SITE</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">Energy</div>
+<div class="font-mono-data-md text-on-surface">88%</div>
+</div>
+</div>
+</div>
+<!-- Unit Row 3 -->
+<div class="p-4 hover:bg-primary/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-mono-data-md text-mono-data-md text-primary font-bold">FIRE-ENG-21</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] bg-error-container/20 border border-error text-error font-bold">CRITICAL</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div>
+<div class="text-[10px] text-outline uppercase">Zone</div>
+<div class="font-mono-data-md text-on-surface">Harbor District</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">ETA</div>
+<div class="font-mono-data-md text-error">01:45m</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">Resources</div>
+<div class="font-mono-data-md text-on-surface">LOW</div>
+</div>
+</div>
+</div>
+<!-- Unit Row 4 -->
+<div class="p-4 hover:bg-primary/5 transition-colors cursor-pointer group">
+<div class="flex justify-between items-center mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-mono-data-md text-mono-data-md text-primary font-bold">MED-TEAM-KAPPA</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-highest/50 border border-outline-variant text-outline font-bold">STANDBY</span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div>
+<div class="text-[10px] text-outline uppercase">Zone</div>
+<div class="font-mono-data-md text-on-surface">Staging Area 1</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">ETA</div>
+<div class="font-mono-data-md text-outline">N/A</div>
+</div>
+<div>
+<div class="text-[10px] text-outline uppercase">Ready</div>
+<div class="font-mono-data-md text-on-surface">YES</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Mission Assignment Map Interface -->
+<div class="col-span-12 xl:col-span-7 bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/20 rounded-lg overflow-hidden relative min-h-[600px]">
+<!-- Map Placeholder -->
+<div class="absolute inset-0 z-0">
+<img alt="Tactical Map" class="w-full h-full object-cover opacity-60" data-alt="A high-tech tactical digital map of a futuristic city at night, rendered with glowing cyan and neon green wireframes and glowing points of interest. The aesthetic is inspired by advanced satellite imaging and military command interfaces, featuring semi-transparent UI layers, data overlays, and grid lines. The lighting is dark with vibrant luminous accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpWNihW7NHv1JnNprdytY4a103ZV_ON1SoWaecKKemUjbQQJEopfqJ90dzyw1LSpgxOgR7yKh-68RSNGvkPIr-yw8A8JI9gzWpTjUxNCp36eksE5M9ccN3eE7ooVprS-zPxCkLpajEoQsZq_Y12P7aw_bSmuBjo9MbbFfsL1y4IiRucZBvd11OyZhm6lMsunSs1rv0_m-AMrwxz1ElC0mYVJfBeGfOo8WnXg-TMbZNiZ4e4-B9-_WhmplgcML3I0I0i_-U9-FrMEpf"/>
+</div>
+<!-- Map Overlays -->
+<div class="absolute inset-0 pointer-events-none z-10 p-6 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="bg-surface/90 backdrop-blur-md p-3 border border-primary-container/30 pointer-events-auto">
+<div class="font-mono-label-sm text-mono-label-sm text-primary-container mb-2">COORDINATE HUD</div>
+<div class="font-mono-data-md text-mono-data-md text-on-surface">LAT: 34.0522° N</div>
+<div class="font-mono-data-md text-mono-data-md text-on-surface">LNG: 118.2437° W</div>
+<div class="font-mono-data-md text-mono-data-md text-primary-container mt-2">ALT: 450M MSL</div>
+</div>
+<div class="bg-surface/90 backdrop-blur-md p-1 border border-outline-variant/30 flex flex-col gap-1 pointer-events-auto">
+<button class="p-2 hover:bg-primary/10 text-primary transition-colors"><span class="material-symbols-outlined">add</span></button>
+<button class="p-2 hover:bg-primary/10 text-primary transition-colors border-t border-outline-variant/20"><span class="material-symbols-outlined">remove</span></button>
+<button class="p-2 hover:bg-primary/10 text-primary transition-colors border-t border-outline-variant/20"><span class="material-symbols-outlined">layers</span></button>
+</div>
+</div>
+<div class="flex justify-center pointer-events-none">
+<div class="bg-surface-container-highest/90 backdrop-blur-xl px-6 py-4 border-t-2 border-primary-container pointer-events-auto flex items-center gap-8 shadow-2xl">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-error animate-pulse"></div>
+<div>
+<div class="text-[10px] text-outline uppercase font-bold">Active Crisis</div>
+<div class="font-mono-data-md text-on-surface">Zone B-4: Industrial Fire</div>
+</div>
+</div>
+<div class="h-8 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-4">
+<button class="bg-primary-container text-on-primary-container font-mono-label-sm text-mono-label-sm px-4 py-2 font-bold hover:brightness-110 active:scale-95 transition-all">REDEPLOY UNITS</button>
+<button class="border border-primary-container text-primary-container font-mono-label-sm text-mono-label-sm px-4 py-2 font-bold hover:bg-primary-container/10 transition-all">VIEW TELEMETRY</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Map Marker Samples (Visual Only) -->
+<div class="absolute top-[40%] left-[30%] pointer-events-none">
+<div class="relative">
+<div class="absolute -inset-4 bg-primary-container/20 rounded-full animate-ping"></div>
+<div class="relative w-4 h-4 bg-primary-container rounded-full shadow-[0_0_15px_rgba(0,229,255,0.8)] border-2 border-surface"></div>
+<div class="absolute top-6 left-1/2 -translate-x-1/2 bg-surface/80 backdrop-blur p-1 border border-primary-container text-[10px] font-mono text-primary whitespace-nowrap">AMB-702</div>
+</div>
+</div>
+<div class="absolute top-[60%] left-[65%] pointer-events-none">
+<div class="relative">
+<div class="absolute -inset-4 bg-error/20 rounded-full animate-ping"></div>
+<div class="relative w-4 h-4 bg-error rounded-full shadow-[0_0_15px_rgba(255,180,171,0.8)] border-2 border-surface"></div>
+<div class="absolute top-6 left-1/2 -translate-x-1/2 bg-surface/80 backdrop-blur p-1 border border-error text-[10px] font-mono text-error whitespace-nowrap">CRISIS B-4</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Performance Analytics & Infrastructure -->
+<div class="grid grid-cols-12 gap-container-gap">
+<div class="col-span-12 md:col-span-6 bg-surface-container-low border border-outline-variant/20 p-6 rounded-lg">
+<h3 class="font-mono-label-sm text-mono-label-sm text-outline uppercase mb-4">Network Resilience Index</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end mb-2">
+<div class="flex gap-1 items-end h-16 w-full">
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[70%]"></div>
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[85%]"></div>
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[65%]"></div>
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[95%]"></div>
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[80%]"></div>
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[40%]"></div>
+<div class="bg-primary/20 hover:bg-primary transition-all flex-1 h-[75%]"></div>
+<div class="bg-primary-container flex-1 h-[90%] shadow-[0_0_10px_rgba(0,229,255,0.4)]"></div>
+</div>
+</div>
+<div class="flex justify-between font-mono-data-md text-mono-data-md text-outline">
+<span>00:00</span>
+<span>CURRENT: 94.2%</span>
+<span>23:59</span>
+</div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-6 bg-surface-container-low border border-outline-variant/20 p-6 rounded-lg">
+<h3 class="font-mono-label-sm text-mono-label-sm text-outline uppercase mb-4">Logistics Queue</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-2 border border-outline-variant/10 bg-surface-container-highest/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary">inventory</span>
+<span class="font-mono-data-md text-on-surface">Medical Resupply: Alpha 1</span>
+</div>
+<span class="text-tertiary-fixed-dim font-mono-label-sm">READY</span>
+</div>
+<div class="flex items-center justify-between p-2 border border-outline-variant/10 bg-surface-container-highest/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">local_gas_station</span>
+<span class="font-mono-data-md text-on-surface">Refueling Protocol: Drone Swarm 4</span>
+</div>
+<span class="text-outline font-mono-label-sm">QUEUED</span>
+</div>
+<div class="flex items-center justify-between p-2 border border-outline-variant/10 bg-surface-container-highest/30">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">engineering</span>
+<span class="font-mono-data-md text-on-surface">Comm Tower Repair: Sector 3</span>
+</div>
+<span class="text-outline font-mono-label-sm">QUEUED</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="ml-[260px] py-4 px-margin-desktop flex justify-between items-center bg-surface-dim border-t border-outline-variant/10">
+<div class="font-mono-data-md text-mono-data-md text-outline">
+            © 2024 PHOENIX GRID TACTICAL SYSTEMS. ENCRYPTED P2P CHANNEL ACTIVE.
+        </div>
+<div class="flex gap-6 font-mono-data-md text-mono-data-md">
+<a class="text-outline hover:text-tertiary transition-colors" href="#">Network Protocol</a>
+<a class="text-outline hover:text-tertiary transition-colors" href="#">Terms of Engagement</a>
+<a class="text-outline hover:text-tertiary transition-colors" href="#">SLA</a>
+</div>
+</footer>
+<!-- FAB (Contextual for Home/Dashboard) -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary-container text-on-primary-container rounded-full shadow-[0_8px_32px_rgba(0,229,255,0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">add_alert</span>
+</button>
+<script>
+        // Simple micro-interaction for map markers and AI pulse
+        setInterval(() => {
+            const markers = document.querySelectorAll('.animate-ping');
+            markers.forEach(m => {
+                m.style.opacity = Math.random() > 0.5 ? '1' : '0.7';
+            });
+        }, 1000);
+    </script>
+</body></html>

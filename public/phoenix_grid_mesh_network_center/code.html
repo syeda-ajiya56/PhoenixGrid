@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | Mesh Network Synchronization Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .glass-panel { backdrop-filter: blur(12px); background: rgba(22,27,41,0.85); border: 1px solid rgba(59,73,76,0.4); }
+  .drop-shadow-glow { filter: drop-shadow(0 0 8px rgba(0,229,255,0.6)); }
+  @keyframes scanline { 0%{top:-2px;opacity:0} 50%{opacity:1} 100%{top:100%;opacity:0} }
+  .scanline-panel { position:relative; overflow:hidden; }
+  .scanline-panel::after { content:''; position:absolute; left:0; width:100%; height:2px;
+    background:linear-gradient(90deg,transparent,#00e5ff,transparent);
+    animation:scanline 4s linear infinite; pointer-events:none; top:0; }
+  @keyframes ripple-out { 0%{transform:scale(0.5);opacity:0.8} 100%{transform:scale(3);opacity:0} }
+  .ripple-ring { animation: ripple-out 1.5s ease-out forwards; }
+  @keyframes pulse-node { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.15)} }
+  .animate-pulse-node { animation: pulse-node 2s infinite ease-in-out; }
+  @keyframes packet-flow { 0%{stroke-dashoffset:100} 100%{stroke-dashoffset:0} }
+  .packet-line { stroke-dasharray: 8 6; animation: packet-flow 1.2s linear infinite; }
+  ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:#090e1b; }
+  ::-webkit-scrollbar-thumb { background:#3b494c; border-radius:10px; }
+  .chain-handler { transition: all 0.3s ease; }
+  .chain-handler.active { box-shadow: 0 0 20px rgba(0,229,255,0.5); border-color: #00e5ff !important; }
+  .chain-handler.done { box-shadow: 0 0 15px rgba(60,227,106,0.4); border-color: #3ce36a !important; }
+  .chain-handler.queued { box-shadow: 0 0 15px rgba(255,180,171,0.3); border-color: #ffb4ab !important; }
+  @keyframes bar-grow { from{height:0} to{height:var(--bar-h)} }
+  .bar-anim { animation: bar-grow 1s ease-out forwards; }
+</style>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode:"class",
+  theme:{ extend:{
+    colors:{
+      "outline":"#849396","on-surface":"#dee2f5","on-surface-variant":"#bac9cc",
+      "surface-container-lowest":"#090e1b","surface-container-low":"#161b29",
+      "surface-container":"#1a1f2d","surface-container-high":"#252a38",
+      "surface-container-highest":"#303443","surface-bright":"#343948",
+      "surface-dim":"#0e1320","surface":"#0e1320","surface-variant":"#303443",
+      "background":"#0e1320","on-background":"#dee2f5",
+      "primary":"#c3f5ff","primary-container":"#00e5ff",
+      "primary-fixed":"#9cf0ff","primary-fixed-dim":"#00daf3",
+      "on-primary":"#00363d","on-primary-container":"#00626e",
+      "secondary":"#adc6ff","secondary-container":"#0566d9",
+      "tertiary":"#b1ffb5","tertiary-container":"#49ed72",
+      "tertiary-fixed":"#69ff87","tertiary-fixed-dim":"#3ce36a",
+      "error":"#ffb4ab","error-container":"#93000a",
+      "outline-variant":"#3b494c","inverse-surface":"#dee2f5",
+      "surface-tint":"#00daf3"
+    },
+    fontFamily:{
+      "sans":["Inter","sans-serif"],
+      "mono":["JetBrains Mono","monospace"]
+    },
+    fontSize:{
+      "mono-label-sm":["12px",{lineHeight:"16px",letterSpacing:"0.05em",fontWeight:"500"}],
+      "headline-lg":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"700"}],
+      "headline-md":["24px",{lineHeight:"32px",fontWeight:"600"}],
+      "mono-data-md":["14px",{lineHeight:"20px",fontWeight:"400"}],
+      "display-lg":["48px",{lineHeight:"56px",letterSpacing:"-0.02em",fontWeight:"800"}],
+      "body-md":["16px",{lineHeight:"24px",fontWeight:"400"}]
+    }
+  }}
+}
+</script>
+</head>
+<body class="bg-background text-on-surface font-sans overflow-hidden h-screen">
+
+<!-- ═══════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════ -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.08)]">
+  <div class="flex items-center gap-6">
+    <span class="text-[28px] font-black tracking-tighter text-primary-container" style="text-shadow:0 0 20px rgba(0,229,255,0.8)">PHOENIX GRID</span>
+    <div class="flex items-center gap-2 px-4 py-2 bg-surface-container-high border border-outline-variant/50 rounded">
+      <span class="material-symbols-outlined text-primary-fixed-dim text-sm">hub</span>
+      <span class="font-mono text-[12px] uppercase tracking-widest text-primary">MESH NET — MODULE A</span>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 px-3 py-1.5 border border-error/40 bg-error/10 rounded">
+      <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+      <span class="font-mono text-[11px] text-error uppercase tracking-widest">INTERNET SEVERED</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 border border-primary-container/40 bg-primary-container/10 rounded">
+      <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+      <span class="font-mono text-[11px] text-primary-container uppercase tracking-widest">MESH ACTIVE</span>
+    </div>
+    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">network_check</span></button>
+    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">settings</span></button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════ -->
+<nav class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col w-[260px] bg-surface-container-lowest/90 backdrop-blur-md border-r border-outline-variant/20">
+  <div class="p-6 border-b border-outline-variant/10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded bg-primary-container/20 border border-primary-container/60 flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary-container">shield_person</span>
+      </div>
+      <div>
+        <div class="font-bold text-primary leading-none text-[16px]">PHX-CMD</div>
+        <div class="font-mono text-[11px] text-outline uppercase tracking-widest mt-0.5">Sector 7G</div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-1 overflow-y-auto py-2">
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 hover:border-l-2 hover:border-outline transition-all" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-mono text-[11px] uppercase tracking-widest">Command</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 hover:border-l-2 hover:border-outline transition-all" href="#"><span class="material-symbols-outlined text-[20px]">map</span><span class="font-mono text-[11px] uppercase tracking-widest">Smart Map</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-primary-container border-l-4 border-primary-container bg-primary-container/10 transition-all" href="#"><span class="material-symbols-outlined text-[20px]">hub</span><span class="font-mono text-[11px] uppercase tracking-widest">Mesh Net</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 hover:border-l-2 hover:border-outline transition-all" href="#"><span class="material-symbols-outlined text-[20px]">psychology</span><span class="font-mono text-[11px] uppercase tracking-widest">Causality</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 hover:border-l-2 hover:border-outline transition-all" href="#"><span class="material-symbols-outlined text-[20px]">emergency</span><span class="font-mono text-[11px] uppercase tracking-widest">Rescue Ops</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 hover:border-l-2 hover:border-outline transition-all" href="#"><span class="material-symbols-outlined text-[20px]">handshake</span><span class="font-mono text-[11px] uppercase tracking-widest">Aid Center</span></a>
+    <a class="flex items-center gap-4 py-3.5 px-6 text-outline hover:bg-surface-variant/30 hover:border-l-2 hover:border-outline transition-all" href="#"><span class="material-symbols-outlined text-[20px]">precision_manufacturing</span><span class="font-mono text-[11px] uppercase tracking-widest">Infrastructure</span></a>
+  </div>
+  <div class="p-4 border-t border-outline-variant/10">
+    <button onclick="triggerBroadcast()" class="w-full bg-primary-container text-on-primary-container py-3 font-mono text-[11px] uppercase tracking-widest font-bold hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] rounded-sm">
+      INITIATE BROADCAST
+    </button>
+    <div class="flex justify-around mt-3">
+      <button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">support_agent</span></button>
+      <button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">terminal</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════════ -->
+<main class="ml-[260px] pt-20 h-screen overflow-y-auto bg-surface-dim">
+
+  <!-- Emergency Banner -->
+  <div class="bg-error-container/20 border-b border-error/30 py-2.5 px-8 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-error animate-pulse text-[18px]">wifi_off</span>
+      <span class="font-mono text-[11px] text-error uppercase font-bold tracking-widest">Internet Connection Lost — Operating in Mesh Network Mode</span>
+    </div>
+    <span class="font-mono text-[11px] text-error/70 uppercase tracking-wider">AUTONOMOUS RE-ROUTING ENABLED</span>
+  </div>
+
+  <div class="p-8 grid grid-cols-12 gap-6">
+
+    <!-- ═══ MESH TOPOLOGY CANVAS (col-span-8) ═══ -->
+    <div class="col-span-12 lg:col-span-8 glass-panel rounded-xl overflow-hidden relative scanline-panel" style="height:520px">
+      <div class="absolute top-0 left-0 w-full p-5 flex justify-between items-start z-10 pointer-events-none">
+        <div>
+          <h2 class="font-bold text-[24px] text-primary flex items-center gap-2">
+            MESH TOPOLOGY
+            <span class="bg-tertiary-container/15 text-tertiary-fixed-dim text-[10px] px-2 py-1 border border-tertiary/30 font-mono uppercase tracking-wider">LIVE ACTIVE</span>
+          </h2>
+          <p class="font-mono text-[12px] text-outline mt-1">Real-time Node Propagation &amp; Store-and-Forward Routing — Singleton MeshNetworkManager</p>
+        </div>
+        <div class="flex gap-2">
+          <div id="node-count-badge" class="bg-surface-container-highest/70 backdrop-blur px-3 py-1.5 border border-outline-variant/30 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+            <span class="font-mono text-[11px] text-on-surface" id="node-count-text">12 NODES ACTIVE</span>
+          </div>
+        </div>
+      </div>
+      <!-- Main Canvas -->
+      <canvas id="meshCanvas" class="w-full h-full block" style="cursor:crosshair"></canvas>
+      <!-- HUD Overlay -->
+      <div class="absolute bottom-5 left-5 pointer-events-none z-10">
+        <div class="font-mono text-[11px] text-primary-fixed-dim/60 space-y-0.5">
+          <div id="hud-lat">LAT: 40.7128° N</div>
+          <div id="hud-lon">LON: 74.0060° W</div>
+          <div id="hud-ts">T+<span id="hud-time">00:00:00</span></div>
+        </div>
+      </div>
+      <div class="absolute bottom-5 right-5 z-10 pointer-events-none">
+        <div id="broadcast-status" class="font-mono text-[11px] text-primary/50 text-right space-y-0.5">
+          <div>PACKETS ROUTED: <span id="pkts-routed" class="text-primary">0</span></div>
+          <div>QUEUE DEPTH: <span id="queue-depth" class="text-primary-fixed-dim">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DEVICE ECOSYSTEM + SIGNAL (col-span-4) ═══ -->
+    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+      <!-- Device Ecosystem -->
+      <div class="glass-panel rounded-xl p-6 relative">
+        <h3 class="font-mono text-[11px] text-outline uppercase tracking-widest mb-5">Device Ecosystem</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary-fixed-dim text-[18px]">bluetooth</span>
+              <span class="text-[14px] text-on-surface">Bluetooth LE Nodes</span>
+            </div>
+            <span id="ble-count" class="font-mono text-[13px] text-primary-fixed-dim font-bold">24 Active</span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-secondary text-[18px]">wifi_tethering</span>
+              <span class="text-[14px] text-on-surface">Wi-Fi Direct Links</span>
+            </div>
+            <span id="wifi-count" class="font-mono text-[13px] text-secondary font-bold">08 Linked</span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">route</span>
+              <span class="text-[14px] text-on-surface">Network Depth</span>
+            </div>
+            <span class="font-mono text-[13px] text-tertiary-fixed-dim font-bold">4 Hops</span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-outline-variant/10">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-outline text-[18px]">speed</span>
+              <span class="text-[14px] text-on-surface">Bandwidth</span>
+            </div>
+            <span id="bandwidth" class="font-mono text-[13px] text-on-surface font-bold">1.2 MB/s</span>
+          </div>
+          <div class="flex justify-between items-center py-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-tertiary text-[18px]">lock</span>
+              <span class="text-[14px] text-on-surface">Encryption</span>
+            </div>
+            <span class="font-mono text-[12px] text-tertiary uppercase">AES-256 / ACTIVE</span>
+          </div>
+        </div>
+      </div>
+      <!-- Signal Strength -->
+      <div class="glass-panel rounded-xl p-6 flex-1">
+        <h3 class="font-mono text-[11px] text-outline uppercase tracking-widest mb-5">Signal Integrity</h3>
+        <div class="space-y-4" id="signal-bars">
+          <!-- dynamically filled -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CHAIN OF RESPONSIBILITY VISUALIZER (col-span-6) ═══ -->
+    <div class="col-span-12 lg:col-span-6 glass-panel rounded-xl p-6">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="font-bold text-[18px] text-primary">Chain of Responsibility Pipeline</h3>
+          <p class="font-mono text-[11px] text-outline mt-1">GoF Pattern: 4-handler message processing chain</p>
+        </div>
+        <button onclick="simulateChain()" class="px-4 py-2 bg-primary-container text-on-primary-container font-mono text-[11px] uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,229,255,0.3)]">
+          RUN CHAIN
+        </button>
+      </div>
+      <!-- Pipeline visual -->
+      <div class="flex flex-col gap-3" id="chain-handlers">
+        <div class="chain-handler border border-outline-variant/40 p-4 rounded-lg" id="handler-0">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center font-mono text-[11px] text-primary font-bold">1</div>
+              <div>
+                <div class="font-bold text-[13px] text-on-surface">Local Database Committer</div>
+                <div class="font-mono text-[10px] text-outline uppercase">IndexedDB — Persist payload to local store</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-[10px] text-outline">PACKETS</div>
+              <div class="font-mono text-[16px] text-primary font-bold" id="h0-count">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center"><span class="material-symbols-outlined text-outline text-[20px]">arrow_downward</span></div>
+        <div class="chain-handler border border-outline-variant/40 p-4 rounded-lg" id="handler-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center font-mono text-[11px] text-secondary font-bold">2</div>
+              <div>
+                <div class="font-bold text-[13px] text-on-surface">Mesh Adjacency Validator</div>
+                <div class="font-mono text-[10px] text-outline uppercase">BLE scan — check peer node availability</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-[10px] text-outline">VALIDATED</div>
+              <div class="font-mono text-[16px] text-secondary font-bold" id="h1-count">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center"><span class="material-symbols-outlined text-outline text-[20px]">arrow_downward</span></div>
+        <div class="chain-handler border border-outline-variant/40 p-4 rounded-lg" id="handler-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center font-mono text-[11px] text-tertiary-fixed-dim font-bold">3</div>
+              <div>
+                <div class="font-bold text-[13px] text-on-surface">P2P Broadcaster</div>
+                <div class="font-mono text-[10px] text-outline uppercase">WiFi-Direct — push to adjacent peers</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-[10px] text-outline">BROADCAST</div>
+              <div class="font-mono text-[16px] text-tertiary-fixed-dim font-bold" id="h2-count">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center"><span class="material-symbols-outlined text-outline text-[20px]">arrow_downward</span></div>
+        <div class="chain-handler border border-outline-variant/40 p-4 rounded-lg" id="handler-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center font-mono text-[11px] text-error font-bold">4</div>
+              <div>
+                <div class="font-bold text-[13px] text-on-surface">Store-and-Forward Queuer</div>
+                <div class="font-mono text-[10px] text-outline uppercase">Cache payload — retry when peer available</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-[10px] text-outline">QUEUED</div>
+              <div class="font-mono text-[16px] text-error font-bold" id="h3-count">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ NETWORK ANALYTICS (col-span-6) ═══ -->
+    <div class="col-span-12 lg:col-span-6 glass-panel rounded-xl p-6">
+      <h3 class="font-bold text-[18px] text-primary mb-1">Network Analytics</h3>
+      <p class="font-mono text-[11px] text-outline mb-5">Singleton MeshNetworkManager — 24h packet throughput</p>
+      <!-- Bar Chart -->
+      <div class="flex items-end gap-2 h-32 mb-3" id="throughput-chart">
+        <!-- bars filled by JS -->
+      </div>
+      <div class="flex justify-between font-mono text-[10px] text-outline mb-6">
+        <span>00:00</span><span>03:00</span><span>06:00</span><span>09:00</span>
+        <span>12:00</span><span>15:00</span><span>18:00</span><span class="text-primary">NOW</span>
+      </div>
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-surface-container-high/50 border border-outline-variant/20 p-4 rounded-lg">
+          <div class="font-mono text-[10px] text-outline uppercase mb-1">Total Synced</div>
+          <div class="font-bold text-[22px] text-on-surface" id="stat-synced">0</div>
+          <div class="font-mono text-[10px] text-tertiary-fixed-dim">packets</div>
+        </div>
+        <div class="bg-surface-container-high/50 border border-outline-variant/20 p-4 rounded-lg">
+          <div class="font-mono text-[10px] text-outline uppercase mb-1">Queue Depth</div>
+          <div class="font-bold text-[22px] text-on-surface" id="stat-queue">0</div>
+          <div class="font-mono text-[10px] text-error">pending</div>
+        </div>
+        <div class="bg-surface-container-high/50 border border-outline-variant/20 p-4 rounded-lg">
+          <div class="font-mono text-[10px] text-outline uppercase mb-1">Peer Discovery</div>
+          <div class="font-bold text-[22px] text-on-surface" id="stat-discovery">0</div>
+          <div class="font-mono text-[10px] text-primary-fixed-dim">nodes/min</div>
+        </div>
+        <div class="bg-surface-container-high/50 border border-outline-variant/20 p-4 rounded-lg">
+          <div class="font-mono text-[10px] text-outline uppercase mb-1">Last Sync</div>
+          <div class="font-bold text-[22px] text-on-surface" id="stat-last-sync">0s</div>
+          <div class="font-mono text-[10px] text-outline">ago</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SYNC STATUS TABLE (col-span-12) ═══ -->
+    <div class="col-span-12 glass-panel rounded-xl overflow-hidden">
+      <div class="p-5 border-b border-outline-variant/20 flex justify-between items-center">
+        <div>
+          <h3 class="font-bold text-[20px] text-primary">Offline Users &amp; Sync Status</h3>
+          <p class="font-mono text-[11px] text-outline mt-0.5">GoF Singleton: MeshNetworkManager — Live device registry &amp; payload pipeline state</p>
+        </div>
+        <div class="flex gap-4">
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim"></span><span class="font-mono text-[11px]">Synced</span></div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-primary-fixed-dim"></span><span class="font-mono text-[11px]">Pending</span></div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-error"></span><span class="font-mono text-[11px]">Offline</span></div>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-surface-container-high/50 border-b border-outline-variant/10">
+              <th class="p-4 font-mono text-[11px] text-outline uppercase tracking-wider">Operator ID</th>
+              <th class="p-4 font-mono text-[11px] text-outline uppercase tracking-wider">Connection Method</th>
+              <th class="p-4 font-mono text-[11px] text-outline uppercase tracking-wider">Handler Stage</th>
+              <th class="p-4 font-mono text-[11px] text-outline uppercase tracking-wider">Last Handshake</th>
+              <th class="p-4 font-mono text-[11px] text-outline uppercase tracking-wider">Packets Pending</th>
+              <th class="p-4 font-mono text-[11px] text-outline uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody id="sync-table-body" class="divide-y divide-white/5">
+            <!-- filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CHAIN EXECUTION LOG (col-span-12) ═══ -->
+    <div class="col-span-12 glass-panel rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary-fixed-dim">terminal</span>
+          <h3 class="font-bold text-[16px] text-primary">Chain Execution Log</h3>
+          <span class="font-mono text-[10px] text-outline">GoF: Chain of Responsibility — handler event stream</span>
+        </div>
+        <button onclick="clearLog()" class="font-mono text-[11px] text-outline uppercase hover:text-error transition-colors">CLEAR</button>
+      </div>
+      <div id="chain-log" class="bg-surface-container-lowest/80 rounded border border-outline-variant/20 p-4 h-36 overflow-y-auto font-mono text-[12px] space-y-1">
+        <div class="text-outline">// MeshNetworkManager initialized — Singleton instance created</div>
+        <div class="text-outline">// Chain of Responsibility pipeline ready — 4 handlers registered</div>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+</main>
+
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full py-3 px-8 flex justify-between items-center bg-surface-dim border-t border-outline-variant/10 z-50 ml-[260px]" style="width:calc(100% - 260px)">
+  <div class="flex items-center gap-4">
+    <span class="font-mono text-[11px] text-primary uppercase tracking-widest">PHOENIX GRID TACTICAL</span>
+    <span class="font-mono text-[11px] text-outline">© 2024 — ENCRYPTED P2P CHANNEL ACTIVE</span>
+  </div>
+  <div class="flex gap-6">
+    <a href="#" class="font-mono text-[11px] text-outline hover:text-tertiary transition-colors">Network Protocol</a>
+    <a href="#" class="font-mono text-[11px] text-outline hover:text-tertiary transition-colors">Terms of Engagement</a>
+    <span class="font-mono text-[11px] text-outline border border-outline/20 px-2 py-0.5">v2.4.0-STABLE</span>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT — GoF Patterns: Singleton + Chain of Responsibility
+═══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+// GoF PATTERN: Chain of Responsibility
+// Each handler processes a payload or delegates to the next handler
+// ─────────────────────────────────────────────────────────────
+
+class MessageHandler {
+  constructor(name) {
+    this.name = name;
+    this.nextHandler = null;
+    this.processedCount = 0;
+  }
+  setNext(handler) {
+    this.nextHandler = handler;
+    return handler; // fluent chaining
+  }
+  handle(payload) {
+    // Default: pass to next handler if available
+    if (this.nextHandler) return this.nextHandler.handle(payload);
+    return { success: false, stage: this.name, message: 'End of chain — payload unresolved' };
+  }
+}
+
+// Handler 1: LocalDatabaseCommitter
+// Simulates writing payload to IndexedDB local storage
+class LocalDatabaseCommitter extends MessageHandler {
+  constructor() { super('LocalDatabaseCommitter'); this.db = []; }
+  handle(payload) {
+    // GoF: Chain of Responsibility — Handler 1: persist payload locally
+    this.processedCount++;
+    this.db.push({ ...payload, savedAt: Date.now() });
+    logChain(`[1] LocalDatabaseCommitter → SAVED payload <span class="text-tertiary-fixed-dim">${payload.id}</span> to IndexedDB`);
+    document.getElementById('h0-count').textContent = this.processedCount;
+    highlightHandler(0, 'active');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        highlightHandler(0, 'done');
+        resolve(super.handle(payload)); // pass down chain
+      }, 400);
+    });
+  }
+}
+
+// Handler 2: MeshAdjacencyValidator
+// Checks whether adjacent peer nodes are available via BLE scan
+class MeshAdjacencyValidator extends MessageHandler {
+  constructor() { super('MeshAdjacencyValidator'); }
+  handle(payload) {
+    // GoF: Chain of Responsibility — Handler 2: validate peer topology
+    this.processedCount++;
+    const manager = MeshNetworkManager.getInstance();
+    const activePeers = manager.nodes.filter(n => n.status === 'connected' || n.status === 'synced');
+    logChain(`[2] MeshAdjacencyValidator → <span class="text-secondary">${activePeers.length}</span> peers found for payload <span class="text-tertiary-fixed-dim">${payload.id}</span>`);
+    document.getElementById('h1-count').textContent = this.processedCount;
+    highlightHandler(1, 'active');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        highlightHandler(1, 'done');
+        payload.availablePeers = activePeers.length;
+        resolve(super.handle(payload));
+      }, 400);
+    });
+  }
+}
+
+// Handler 3: P2PBroadcaster
+// Attempts direct Bluetooth / WiFi-Direct transmission to adjacent peers
+class P2PBroadcaster extends MessageHandler {
+  constructor() { super('P2PBroadcaster'); }
+  handle(payload) {
+    // GoF: Chain of Responsibility — Handler 3: attempt direct P2P broadcast
+    this.processedCount++;
+    document.getElementById('h2-count').textContent = this.processedCount;
+    highlightHandler(2, 'active');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        if (payload.availablePeers > 0) {
+          logChain(`[3] P2PBroadcaster → ✓ TRANSMITTED to <span class="text-tertiary-fixed-dim">${payload.availablePeers}</span> peers via BLE/WiFi-Direct`);
+          highlightHandler(2, 'done');
+          const manager = MeshNetworkManager.getInstance();
+          manager.stats.totalRouted++;
+          document.getElementById('pkts-routed').textContent = manager.stats.totalRouted;
+          resolve({ success: true, stage: 'P2PBroadcaster', peersReached: payload.availablePeers });
+        } else {
+          logChain(`[3] P2PBroadcaster → ✗ NO peers available — forwarding to Store-and-Forward`);
+          highlightHandler(2, 'queued');
+          resolve(super.handle(payload)); // escalate to queuer
+        }
+      }, 400);
+    });
+  }
+}
+
+// Handler 4: StoreAndForwardQueuer
+// Caches payload locally; retries on next peer connection event
+class StoreAndForwardQueuer extends MessageHandler {
+  constructor() { super('StoreAndForwardQueuer'); this.queue = []; }
+  handle(payload) {
+    // GoF: Chain of Responsibility — Handler 4: cache for retry on reconnect
+    this.processedCount++;
+    payload.queuedAt = Date.now();
+    payload.retryCount = 0;
+    this.queue.push(payload);
+    logChain(`[4] StoreAndForwardQueuer → CACHED payload <span class="text-error">${payload.id}</span> — queue depth: ${this.queue.length}`);
+    document.getElementById('h3-count').textContent = this.processedCount;
+    document.getElementById('stat-queue').textContent = this.queue.length;
+    document.getElementById('queue-depth').textContent = this.queue.length;
+    highlightHandler(3, 'active');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        highlightHandler(3, 'queued');
+        resolve({ success: false, stage: 'StoreAndForwardQueuer', queueSize: this.queue.length });
+      }, 400);
+    });
+  }
+  // Flush queue when peers reconnect
+  flush() {
+    const manager = MeshNetworkManager.getInstance();
+    const flushed = this.queue.splice(0, Math.min(3, this.queue.length));
+    flushed.forEach(p => {
+      logChain(`[4] StoreAndForwardQueuer → RETRYING cached payload <span class="text-primary-fixed-dim">${p.id}</span>`);
+      manager.stats.totalRouted++;
+    });
+    document.getElementById('stat-queue').textContent = this.queue.length;
+    document.getElementById('queue-depth').textContent = this.queue.length;
+    document.getElementById('pkts-routed').textContent = manager.stats.totalRouted;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// GoF PATTERN: Singleton — MeshNetworkManager
+// Guarantees single unified control point for all mesh operations
+// ─────────────────────────────────────────────────────────────
+class MeshNetworkManager {
+  constructor() {
+    if (MeshNetworkManager._instance) {
+      throw new Error('Use MeshNetworkManager.getInstance()');
+    }
+    // Initialize the Chain of Responsibility pipeline
+    this.handler1 = new LocalDatabaseCommitter();
+    this.handler2 = new MeshAdjacencyValidator();
+    this.handler3 = new P2PBroadcaster();
+    this.handler4 = new StoreAndForwardQueuer();
+    // Wire the chain: 1 → 2 → 3 → 4
+    this.handler1.setNext(this.handler2).setNext(this.handler3).setNext(this.handler4);
+
+    this.nodes = this._initNodes();
+    this.stats = {
+      totalRouted: 0, lastSyncAge: 0, discoveryRate: 0,
+      startTime: Date.now(), elapsed: 0
+    };
+    this.packetIdCounter = 1000;
+    MeshNetworkManager._instance = this;
+    logChain(`[SINGLETON] MeshNetworkManager instantiated — single control point established`);
+  }
+
+  static getInstance() {
+    // GoF Singleton: return existing instance or create one
+    if (!MeshNetworkManager._instance) new MeshNetworkManager();
+    return MeshNetworkManager._instance;
+  }
+
+  _initNodes() {
+    const statuses = ['connected','connected','connected','synced','synced','synced','synced','pending','pending','offline','connected','synced'];
+    const labels = ['PHX-01','PHX-02','PHX-03','PHX-04','PHX-05','PHX-06','PHX-07','PHX-08','PHX-09','PHX-10','PHX-11','PHX-12'];
+    return labels.map((label, i) => ({
+      id: label, label,
+      x: 0, y: 0, // set by canvas layout
+      vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4,
+      status: statuses[i],
+      signal: 20 + Math.floor(Math.random()*80),
+      pulseRadius: 0, pulseAlpha: 0, rippleActive: false,
+      ripples: []
+    }));
+  }
+
+  discoverDevices() {
+    // Simulate BLE peer discovery — randomly update one node
+    const n = this.nodes[Math.floor(Math.random()*this.nodes.length)];
+    const transitions = { offline:'pending', pending:'connected', connected:'synced', synced:'synced' };
+    n.status = transitions[n.status] || 'connected';
+    n.signal = Math.max(10, Math.min(99, n.signal + (Math.random()-0.5)*15));
+    this.stats.discoveryRate = 2 + Math.floor(Math.random()*4);
+    document.getElementById('stat-discovery').textContent = this.stats.discoveryRate;
+    this._updateSignalBars();
+  }
+
+  broadcastPayload(payload) {
+    // Triggers the full Chain of Responsibility pipeline
+    this.stats.lastSyncAge = 0;
+    return this.handler1.handle(payload);
+  }
+
+  getNetworkStats() {
+    this.stats.elapsed = Math.floor((Date.now() - this.stats.startTime)/1000);
+    return this.stats;
+  }
+
+  _updateSignalBars() {
+    const container = document.getElementById('signal-bars');
+    if (!container) return;
+    container.innerHTML = this.nodes.slice(0,5).map(n => {
+      const color = n.signal > 70 ? '#3ce36a' : n.signal > 40 ? '#00daf3' : '#ffb4ab';
+      const textColor = n.signal > 70 ? 'text-tertiary-fixed-dim' : n.signal > 40 ? 'text-primary-fixed-dim' : 'text-error';
+      const statusColor = n.status === 'synced' ? '#3ce36a' : n.status === 'connected' ? '#00daf3' : n.status === 'pending' ? '#FF9F00' : '#ffb4ab';
+      return `<div>
+        <div class="flex justify-between mb-1.5">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full" style="background:${statusColor}"></span>
+            <span class="font-mono text-[13px]">Node ${n.id}</span>
+          </div>
+          <span class="font-mono text-[13px] ${textColor}">${n.signal}%</span>
+        </div>
+        <div class="h-1 bg-surface-variant rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all duration-500" style="width:${n.signal}%;background:${color};box-shadow:0 0 8px ${color}60"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+MeshNetworkManager._instance = null;
+
+// ─────────────────────────────────────────────────────────────
+// CANVAS RENDERER
+// ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('meshCanvas');
+const ctx = canvas.getContext('2d');
+let animFrame;
+let elapsed = 0;
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  layoutNodes();
+}
+
+function layoutNodes() {
+  const manager = MeshNetworkManager.getInstance();
+  const W = canvas.width, H = canvas.height;
+  const positions = [
+    [0.15,0.25],[0.32,0.15],[0.52,0.20],[0.70,0.18],[0.85,0.30],
+    [0.78,0.55],[0.88,0.75],[0.65,0.80],[0.42,0.85],[0.22,0.75],
+    [0.08,0.60],[0.25,0.50]
+  ];
+  manager.nodes.forEach((n,i) => {
+    if (i < positions.length) { n.x = positions[i][0]*W; n.y = positions[i][1]*H; }
+  });
+}
+
+function nodeColor(status) {
+  return { connected:'#00e5ff', synced:'#3ce36a', pending:'#FF9F00', offline:'#ffb4ab' }[status] || '#849396';
+}
+
+function drawDotGrid() {
+  ctx.fillStyle = 'rgba(0,229,255,0.04)';
+  for (let x=0; x<canvas.width; x+=28) for (let y=0; y<canvas.height; y+=28) {
+    ctx.beginPath(); ctx.arc(x,y,1,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawConnections(nodes) {
+  for (let i=0; i<nodes.length; i++) {
+    for (let j=i+1; j<nodes.length; j++) {
+      const a=nodes[i], b=nodes[j];
+      const dist = Math.hypot(a.x-b.x, a.y-b.y);
+      if (dist < 200) {
+        const alpha = (1 - dist/200) * 0.35;
+        const isActive = (a.status !== 'offline' && b.status !== 'offline');
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        if (isActive) {
+          ctx.setLineDash([6,5]);
+          ctx.lineDashOffset = -(elapsed * 0.8);
+          ctx.strokeStyle = `rgba(0,229,255,${alpha})`;
+        } else {
+          ctx.setLineDash([]);
+          ctx.strokeStyle = `rgba(132,147,150,${alpha*0.5})`;
+        }
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }
+}
+
+function drawNodes(nodes) {
+  nodes.forEach(n => {
+    const color = nodeColor(n.status);
+    // Glow
+    const grd = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,18);
+    grd.addColorStop(0, color+'50'); grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(n.x,n.y,18,0,Math.PI*2); ctx.fill();
+    // Core circle
+    ctx.beginPath(); ctx.arc(n.x,n.y,7,0,Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+    // Ripple rings
+    n.ripples = (n.ripples||[]).filter(r => r.alpha > 0);
+    n.ripples.forEach(r => {
+      ctx.beginPath(); ctx.arc(n.x,n.y,r.radius,0,Math.PI*2);
+      ctx.strokeStyle = color+Math.floor(r.alpha*255).toString(16).padStart(2,'0');
+      ctx.lineWidth = 1.5; ctx.stroke();
+      r.radius += 2.5; r.alpha -= 0.025;
+    });
+    // Label
+    ctx.font = '500 10px "JetBrains Mono"';
+    ctx.fillStyle = 'rgba(222,226,245,0.7)';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.id, n.x, n.y + 20);
+  });
+}
+
+function animateCanvas() {
+  elapsed++;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawDotGrid();
+  const manager = MeshNetworkManager.getInstance();
+  drawConnections(manager.nodes);
+  drawNodes(manager.nodes);
+  // Pulse breathe for connected nodes
+  manager.nodes.forEach(n => {
+    if (n.status === 'connected' || n.status === 'synced') {
+      if (Math.sin(elapsed * 0.05 + n.x) > 0.97) {
+        n.ripples.push({ radius: 8, alpha: 0.7 });
+      }
+    }
+  });
+  // HUD time
+  const sec = Math.floor(elapsed/60);
+  const hh = String(Math.floor(sec/3600)).padStart(2,'0');
+  const mm = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  const ss = String(sec%60).padStart(2,'0');
+  const el = document.getElementById('hud-time');
+  if (el) el.textContent = `${hh}:${mm}:${ss}`;
+  animFrame = requestAnimationFrame(animateCanvas);
+}
+
+// Click on canvas → find nearest node → trigger broadcast
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const manager = MeshNetworkManager.getInstance();
+  let closest = null, closestDist = Infinity;
+  manager.nodes.forEach(n => {
+    const d = Math.hypot(n.x-mx, n.y-my);
+    if (d < closestDist) { closestDist = d; closest = n; }
+  });
+  if (closest && closestDist < 30) {
+    // Trigger ripple animation
+    for (let i=0; i<4; i++) closest.ripples.push({ radius: 8+i*6, alpha: 0.8-i*0.15 });
+    // Run broadcast through chain
+    const payload = { id: `PKT-${++manager.packetIdCounter}`, origin: closest.id, data: { type:'STATUS_UPDATE', lat:40.71+Math.random()*0.01, ts:Date.now() } };
+    logChain(`<span class="text-primary">→ NODE CLICKED: ${closest.id} — Broadcasting payload ${payload.id}</span>`);
+    manager.broadcastPayload(payload).then(result => {
+      logChain(`<span class="${result.success?'text-tertiary-fixed-dim':'text-error'}">✓ Chain completed: ${result.stage} — success:${result.success}</span>`);
+      manager.stats.lastSyncAge = 0;
+      document.getElementById('stat-synced').textContent = manager.stats.totalRouted;
+    });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// UI HELPERS
+// ─────────────────────────────────────────────────────────────
+function highlightHandler(index, state) {
+  const el = document.getElementById(`handler-${index}`);
+  if (!el) return;
+  el.classList.remove('active','done','queued');
+  if (state) el.classList.add(state);
+}
+
+function logChain(msg) {
+  const log = document.getElementById('chain-log');
+  if (!log) return;
+  const ts = new Date().toLocaleTimeString('en-US', {hour12:false});
+  const line = document.createElement('div');
+  line.innerHTML = `<span class="text-outline/50">[${ts}]</span> ${msg}`;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function clearLog() {
+  const log = document.getElementById('chain-log');
+  if (log) log.innerHTML = '<div class="text-outline">// Log cleared</div>';
+}
+
+function simulateChain() {
+  const manager = MeshNetworkManager.getInstance();
+  const payload = { id: `PKT-${++manager.packetIdCounter}`, origin: 'PHX-CMD', data: { type:'MANUAL_BROADCAST', ts: Date.now() } };
+  logChain(`<span class="text-primary">→ MANUAL BROADCAST triggered — payload ${payload.id}</span>`);
+  manager.broadcastPayload(payload).then(result => {
+    logChain(`<span class="${result.success?'text-tertiary-fixed-dim':'text-error'}">✓ Chain result: ${result.stage}</span>`);
+    document.getElementById('stat-synced').textContent = manager.stats.totalRouted;
+  });
+}
+
+function triggerBroadcast() {
+  simulateChain();
+  // Burst ripples on all connected nodes
+  MeshNetworkManager.getInstance().nodes.filter(n=>n.status!=='offline').forEach(n => {
+    for (let i=0;i<3;i++) n.ripples.push({ radius:8+i*8, alpha:0.6-i*0.15 });
+  });
+}
+
+function buildThroughputChart() {
+  const chart = document.getElementById('throughput-chart');
+  if (!chart) return;
+  const vals = [42,78,55,91,67,84,73,96];
+  chart.innerHTML = vals.map((v,i) => {
+    const isLast = i === vals.length-1;
+    return `<div class="flex-1 flex flex-col items-center gap-1">
+      <div class="w-full rounded-t relative" style="height:${v}%;background:${isLast?'#00e5ff':'rgba(0,229,255,0.2)'};box-shadow:${isLast?'0 0 12px rgba(0,229,255,0.5)':'none'};min-height:8px;transition:all 0.3s"></div>
+    </div>`;
+  }).join('');
+}
+
+function buildSyncTable() {
+  const rows = [
+    { id:'OPERATOR_ALPHA', method:'Bluetooth Mesh (v5.2)', stage:'P2P Broadcaster', age:'0.4s', pending:'0', status:'SYNCED' },
+    { id:'SCOUT_BRAVO_4',  method:'Wi-Fi Direct (P2P)',    stage:'P2P Broadcaster', age:'12.8s', pending:'124 KB', status:'PENDING' },
+    { id:'GHOST_LEAD',     method:'Encrypted Radio Burst', stage:'Store-Forward',   age:'314s',  pending:'CRITICAL', status:'OFFLINE' },
+    { id:'DELTA_KILO',     method:'Bluetooth Mesh (v5.2)', stage:'DB Committer',    age:'2.1s',  pending:'0', status:'SYNCED' },
+    { id:'FOXTROT_9',      method:'Wi-Fi Direct (P2P)',    stage:'Adj. Validator',  age:'44s',   pending:'880 KB', status:'PENDING' },
+    { id:'RECON_ALPHA',    method:'Bluetooth Mesh (v5.2)', stage:'P2P Broadcaster', age:'1.2s',  pending:'0', status:'SYNCED' },
+    { id:'MED_TEAM_3',     method:'Mesh Radio Relay',      stage:'Store-Forward',   age:'201s',  pending:'3.1 MB', status:'OFFLINE' },
+    { id:'CONVOY_DELTA',   method:'Wi-Fi Direct (P2P)',    stage:'P2P Broadcaster', age:'5.6s',  pending:'0', status:'SYNCED' },
+  ];
+  const statusConfig = {
+    SYNCED:  { bg:'bg-tertiary-container/10', text:'text-tertiary-fixed-dim', border:'border-tertiary-fixed-dim/30' },
+    PENDING: { bg:'bg-primary-container/10',  text:'text-primary-fixed-dim',  border:'border-primary-fixed-dim/30' },
+    OFFLINE: { bg:'bg-error-container/10',    text:'text-error',              border:'border-error/30' },
+  };
+  const tbody = document.getElementById('sync-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(r => {
+    const sc = statusConfig[r.status];
+    return `<tr class="hover:bg-primary/5 transition-colors group relative cursor-pointer">
+      <td class="p-4">
+        <div class="w-[3px] h-full absolute left-0 top-0 bg-transparent group-hover:bg-primary-container transition-all"></div>
+        <span class="font-mono text-[13px] text-on-surface">${r.id}</span>
+      </td>
+      <td class="p-4 font-mono text-[13px] text-on-surface-variant">${r.method}</td>
+      <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold tracking-wider border ${sc.bg} ${sc.text} ${sc.border}">${r.stage.toUpperCase()}</span></td>
+      <td class="p-4 font-mono text-[13px] text-on-surface-variant">${r.age} ago</td>
+      <td class="p-4 font-mono text-[13px] ${r.status==='OFFLINE'?'text-error':r.status==='PENDING'?'text-primary-fixed-dim':'text-outline'}">${r.pending}</td>
+      <td class="p-4"><span class="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border ${sc.bg} ${sc.text} ${sc.border}">${r.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const manager = MeshNetworkManager.getInstance(); // Singleton
+  resizeCanvas();
+  animateCanvas();
+  buildThroughputChart();
+  buildSyncTable();
+  manager._updateSignalBars();
+
+  // Live metrics update loop
+  setInterval(() => {
+    manager.stats.lastSyncAge++;
+    document.getElementById('stat-last-sync').textContent = manager.stats.lastSyncAge + 's';
+    // Random auto-broadcast
+    if (Math.random() > 0.65) {
+      const payload = { id:`PKT-${++manager.packetIdCounter}`, origin: manager.nodes[Math.floor(Math.random()*manager.nodes.length)].id, data:{type:'AUTO',ts:Date.now()} };
+      manager.broadcastPayload(payload).then(() => {
+        document.getElementById('stat-synced').textContent = manager.stats.totalRouted;
+      });
+    }
+    document.getElementById('node-count-text').textContent = `${manager.nodes.filter(n=>n.status!=='offline').length} NODES ACTIVE`;
+    document.getElementById('ble-count').textContent = `${manager.nodes.filter(n=>n.status==='connected'||n.status==='synced').length + 18} Active`;
+  }, 2000);
+
+  // Device discovery loop
+  setInterval(() => manager.discoverDevices(), 5000);
+
+  // Flush store-and-forward queue periodically
+  setInterval(() => {
+    if (manager.handler4.queue.length > 0) {
+      logChain(`<span class="text-primary-fixed-dim">→ Store-Forward flush triggered — ${manager.handler4.queue.length} cached payloads</span>`);
+      manager.handler4.flush();
+    }
+  }, 8000);
+});
+
+window.addEventListener('resize', () => { resizeCanvas(); });
+</script>
+</body>
+</html>

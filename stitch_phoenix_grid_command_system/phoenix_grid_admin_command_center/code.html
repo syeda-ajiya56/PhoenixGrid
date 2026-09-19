@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | ADMIN COMMAND CENTER</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .drop-shadow-glow {
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        .scanning-line {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanning-line::after {
+            content: "";
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.05), transparent);
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+        .pulse-warning {
+            animation: pulse-bg 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-bg {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#849396",
+                        "inverse-on-surface": "#2b303e",
+                        "on-tertiary-fixed": "#002108",
+                        "on-surface": "#dee2f5",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#006727",
+                        "on-primary": "#00363d",
+                        "surface-container-lowest": "#090e1b",
+                        "primary": "#c3f5ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-surface": "#dee2f5",
+                        "surface-container-high": "#252a38",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-low": "#161b29",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline-variant": "#3b494c",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-dim": "#0e1320",
+                        "primary-fixed": "#9cf0ff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#003912",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0e1320",
+                        "surface-variant": "#303443",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-highest": "#303443",
+                        "surface-bright": "#343948",
+                        "primary-container": "#00e5ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container": "#1a1f2d",
+                        "tertiary-container": "#49ed72",
+                        "error-container": "#93000a",
+                        "on-background": "#dee2f5",
+                        "secondary-container": "#0566d9",
+                        "secondary": "#adc6ff",
+                        "tertiary": "#b1ffb5",
+                        "on-primary-container": "#00626e",
+                        "tertiary-fixed": "#69ff87",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "inverse-primary": "#006875",
+                        "surface-tint": "#00daf3",
+                        "background": "#0e1320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "container-gap": "24px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-label-sm": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-data-md": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-8">
+<span class="font-display-lg text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</span>
+<div class="hidden md:flex items-center bg-surface-container-high px-4 py-2 rounded shadow-inner">
+<span class="material-symbols-outlined text-primary text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-mono-label-sm font-mono-label-sm placeholder:text-outline/50 w-64" placeholder="QUERY NET_NODE..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded active:scale-95 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="network_check">network_check</span>
+</button>
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded active:scale-95 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</button>
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded active:scale-95 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<span class="font-mono-label-sm text-mono-label-sm text-primary px-3 py-1 border border-primary/30 bg-primary/5">OPS STATUS: ALPHA</span>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col w-[260px] bg-surface-container-lowest/80 backdrop-blur-md border-r border-outline-variant/20">
+<div class="p-6 flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-primary-container/20 border border-primary-container/40 flex items-center justify-center overflow-hidden">
+<img alt="Commander Profile" class="object-cover" data-alt="A futuristic close-up of a high-tech robotic interface lens with glowing cyan circuits and glass reflections, representing an advanced digital AI identity for a command center, styled in a dark tactical aesthetic with sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjVwoQJlueCNt6SkI5gw9p24cVNaX0t9dkHQTuLAtxroVfF96zyDWnLP-B_DTaIvjXCz89i_vKC46v3f2kJkwATsJ5-DqfOWiSiQQ9gWJnwf3hNgUUPWuRr6eN7nnVdTfmAPdr4UzaPy40RAasFdXh44aSjB1ps4usr72Vm_d7FkUwwChbDLZeQ4XfjplrTT-pzqjIW1U5QrDNOgelclrq8Z-gXiqXsMxGmCLI3Wjm5_gz_ylo2FqGvE7qyZqs2LenRuvXleQnTMli"/>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-primary leading-none">PHX-CMD</p>
+<p class="font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest mt-1">Sector 7G</p>
+</div>
+</div>
+<nav class="flex-1 mt-4">
+<ul class="space-y-1">
+<li class="group">
+<a class="flex items-center gap-4 py-4 px-6 transition-all duration-200 ease-in-out text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Command</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 py-4 px-6 transition-all duration-200 ease-in-out text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Smart Map</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 py-4 px-6 transition-all duration-200 ease-in-out text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Mesh Net</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 py-4 px-6 transition-all duration-200 ease-in-out text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Causality</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 py-4 px-6 transition-all duration-200 ease-in-out text-outline hover:text-on-surface hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline" href="#">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Rescue Ops</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 py-4 px-6 transition-all duration-200 ease-in-out text-primary-container border-l-4 border-primary-container bg-primary-container/10" href="#">
+<span class="material-symbols-outlined" data-icon="shield_person">shield_person</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Admin</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="p-6">
+<button class="w-full bg-primary-container text-on-primary-container font-mono-label-sm text-mono-label-sm uppercase tracking-widest py-3 rounded hover:brightness-110 transition-all active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                INITIATE BROADCAST
+            </button>
+</div>
+<div class="border-t border-outline-variant/10 p-4">
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 text-outline hover:text-on-surface transition-colors py-2 px-2" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="support_agent">support_agent</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase">Support</span>
+</a>
+<a class="flex items-center gap-3 text-outline hover:text-on-surface transition-colors py-2 px-2" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="terminal">terminal</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase">Logs</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[260px] pt-20 min-h-screen pb-20">
+<!-- Global Alert Banner -->
+<div class="bg-secondary-container/20 border-y border-secondary-container/30 px-margin-desktop py-3 flex items-center justify-center gap-4 pulse-warning">
+<span class="material-symbols-outlined text-secondary-container" data-icon="wifi_off">wifi_off</span>
+<p class="font-mono-label-sm text-mono-label-sm text-secondary uppercase tracking-[0.2em]">Operating in Mesh Network Mode: External Uplink Interrupted</p>
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-ping"></span>
+</div>
+<div class="p-margin-desktop space-y-container-gap">
+<!-- Bento Dashboard Grid -->
+<div class="grid grid-cols-12 gap-container-gap">
+<!-- Hero Section: Active Emergencies -->
+<div class="col-span-12 lg:col-span-8 glass-panel bg-surface-container-low/80 p-6 relative scanning-line">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Active Emergencies</h2>
+<p class="font-mono-label-sm text-mono-label-sm text-outline uppercase mt-1">Real-time threat mapping</p>
+</div>
+<div class="bg-error-container/20 border border-error-container/50 px-4 py-2 text-error font-mono-label-sm text-mono-label-sm rounded flex items-center gap-2">
+<span class="w-2 h-2 bg-error rounded-full animate-pulse"></span>
+                            3 CRITICAL EVENTS
+                        </div>
+</div>
+<!-- Simulated Data Table -->
+<div class="space-y-2">
+<div class="grid grid-cols-6 p-3 border-b border-outline-variant/10 text-outline font-mono-label-sm text-mono-label-sm uppercase">
+<div class="col-span-2">Location</div>
+<div>Threat</div>
+<div>Status</div>
+<div>Impact</div>
+<div class="text-right">Action</div>
+</div>
+<div class="grid grid-cols-6 p-3 hover:bg-surface-variant/20 items-center transition-colors group cursor-pointer border-l-2 border-transparent hover:border-error">
+<div class="col-span-2 font-mono-data-md text-mono-data-md">S7-W4 DIST-GRID</div>
+<div><span class="bg-error-container/10 border border-error/20 text-error px-2 py-0.5 rounded text-[10px]">ALPHA</span></div>
+<div class="text-on-surface font-mono-data-md">CONTAINING</div>
+<div class="text-outline font-mono-data-md text-mono-data-md">84% CRIT</div>
+<div class="text-right"><span class="material-symbols-outlined text-primary" data-icon="chevron_right">chevron_right</span></div>
+</div>
+<div class="grid grid-cols-6 p-3 hover:bg-surface-variant/20 items-center transition-colors group cursor-pointer border-l-2 border-transparent hover:border-secondary">
+<div class="col-span-2 font-mono-data-md text-mono-data-md">N2-NORTHERN HUB</div>
+<div><span class="bg-secondary-container/10 border border-secondary/20 text-secondary px-2 py-0.5 rounded text-[10px]">BETA</span></div>
+<div class="text-on-surface font-mono-data-md">TRIAGE</div>
+<div class="text-outline font-mono-data-md text-mono-data-md">12% MOD</div>
+<div class="text-right"><span class="material-symbols-outlined text-primary" data-icon="chevron_right">chevron_right</span></div>
+</div>
+</div>
+<!-- HUD Background Decor -->
+<div class="absolute bottom-4 right-4 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-9xl text-primary" data-icon="radar" style="font-variation-settings: 'wght' 100;">radar</span>
+</div>
+</div>
+<!-- AI Risk Score -->
+<div class="col-span-12 lg:col-span-4 glass-panel bg-surface-container-low/80 p-6 flex flex-col items-center justify-center text-center space-y-4">
+<h2 class="font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest">AI Risk Score</h2>
+<div class="relative w-48 h-48 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-outline-variant/20" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-tertiary shadow-[0_0_10px_rgba(60,227,106,0.4)]" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="150" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-tertiary drop-shadow-glow leading-none">68</span>
+<span class="font-mono-label-sm text-mono-label-sm text-tertiary/60 uppercase">Optimal</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[200px]">Causality engine predicts 14% decrease in systemic failure over 4H.</p>
+</div>
+<!-- Secondary Metrics Row -->
+<div class="col-span-12 md:col-span-3 glass-panel bg-surface-container-low/80 p-6 space-y-2 border-t-2 border-primary-container">
+<div class="flex justify-between items-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="devices">devices</span>
+<span class="font-mono-label-sm text-mono-label-sm text-tertiary">+12.4%</span>
+</div>
+<h3 class="font-headline-md text-headline-md leading-none">42.8k</h3>
+<p class="font-mono-label-sm text-mono-label-sm text-outline uppercase">Connected Devices</p>
+</div>
+<div class="col-span-12 md:col-span-3 glass-panel bg-surface-container-low/80 p-6 space-y-2 border-t-2 border-tertiary">
+<div class="flex justify-between items-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="medical_services">medical_services</span>
+<span class="font-mono-label-sm text-mono-label-sm text-tertiary">STABLE</span>
+</div>
+<h3 class="font-headline-md text-headline-md leading-none">156</h3>
+<p class="font-mono-label-sm text-mono-label-sm text-outline uppercase">Rescue Units Active</p>
+</div>
+<div class="col-span-12 md:col-span-3 glass-panel bg-surface-container-low/80 p-6 space-y-2 border-t-2 border-secondary">
+<div class="flex justify-between items-center">
+<span class="material-symbols-outlined text-secondary" data-icon="volunteer_activism">volunteer_activism</span>
+<span class="font-mono-label-sm text-mono-label-sm text-secondary">ACTIVE</span>
+</div>
+<h3 class="font-headline-md text-headline-md leading-none">12</h3>
+<p class="font-mono-label-sm text-mono-label-sm text-outline uppercase">Humanitarian Missions</p>
+</div>
+<div class="col-span-12 md:col-span-3 glass-panel bg-surface-container-low/80 p-6 space-y-2 border-t-2 border-error">
+<div class="flex justify-between items-center">
+<span class="material-symbols-outlined text-error" data-icon="power_settings_new">power_settings_new</span>
+<span class="font-mono-label-sm text-mono-label-sm text-error">CRITICAL</span>
+</div>
+<h3 class="font-headline-md text-headline-md leading-none">84.2%</h3>
+<p class="font-mono-label-sm text-mono-label-sm text-outline uppercase">Infrastructure Health</p>
+</div>
+<!-- Lower Data Visualization Section -->
+<div class="col-span-12 lg:col-span-4 glass-panel bg-surface-container-low/80 p-6 space-y-6">
+<h2 class="font-headline-md text-headline-md text-on-surface">Offline Network</h2>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<span class="font-mono-label-sm text-mono-label-sm text-outline">NODES ISOLATED</span>
+<span class="font-mono-data-md text-mono-data-md text-on-surface">1,240 / 50k</span>
+</div>
+<div class="w-full bg-outline-variant/10 h-4 rounded-full overflow-hidden flex">
+<div class="h-full bg-secondary shadow-[0_0_8px_rgba(5,102,217,0.5)]" style="width: 15%"></div>
+<div class="h-full bg-primary-container shadow-[0_0_8px_rgba(0,229,255,0.5)]" style="width: 70%"></div>
+<div class="h-full bg-outline-variant/30" style="width: 15%"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-high p-3 rounded">
+<p class="text-[10px] text-outline uppercase mb-1">Latency</p>
+<p class="font-mono-data-md text-mono-data-md text-tertiary">42ms</p>
+</div>
+<div class="bg-surface-container-high p-3 rounded">
+<p class="text-[10px] text-outline uppercase mb-1">Packet Loss</p>
+<p class="font-mono-data-md text-mono-data-md text-error">2.4%</p>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-8 glass-panel bg-surface-container-low/80 p-6">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-on-surface">Critical Zones</h2>
+<div class="flex gap-2">
+<button class="bg-primary/10 border border-primary/30 text-primary px-3 py-1 font-mono-label-sm text-mono-label-sm rounded">HEATMAP</button>
+<button class="bg-surface-container-high px-3 py-1 font-mono-label-sm text-mono-label-sm rounded text-outline hover:text-on-surface">TELEMETRY</button>
+</div>
+</div>
+<div class="h-[240px] w-full rounded relative overflow-hidden bg-surface-container-highest/20 border border-outline-variant/20">
+<img class="w-full h-full object-cover opacity-60" data-alt="A dark tactical topographic map view of a city grid illuminated with glowing neon cyan and amber paths representing data flow and emergency zones. The aesthetic is high-tech aerospace HUD with fine line work, digital coordinates overlays, and a sophisticated futuristic glass interface feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAojm-nBYotccsGsmW3TFItawqcPrFkqVW8RanjQpgR83IHOw4jOVc3BLt72OnQsSHF30e3NlMEIbuNoCvy8VloX1Oz0JSuyYNKTGjI3hNDuxhD39RIChpA5_gnIRjI6gcpatnxJq-TRzszubMURgwNsA4Yc-922mmIVPC3CvB8RpANmTFJSEAxljGM_JCJRmQQml9QRvhzUKraRh3iX7afrtC8XtjfsbptxhhONxiyPWRRsNmoMFdt7inYUsdLY5itTLGUWluL1Pcg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low to-transparent"></div>
+<!-- Floating HUD markers -->
+<div class="absolute top-10 left-10 p-2 bg-error-container/80 backdrop-blur border border-error/50 rounded flex items-center gap-2">
+<span class="w-2 h-2 bg-error rounded-full animate-ping"></span>
+<span class="font-mono-label-sm text-mono-label-sm">ZONE ALPHA-7</span>
+</div>
+<div class="absolute bottom-10 right-20 p-2 bg-tertiary-container/80 backdrop-blur border border-tertiary/50 rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+<span class="font-mono-label-sm text-mono-label-sm text-on-tertiary-container">ZONE STABLE</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full z-30 bg-surface-dim border-t border-outline-variant/10 py-4 px-margin-desktop flex justify-between items-center font-mono-data-md text-mono-data-md text-outline">
+<div class="flex items-center gap-6">
+<span class="text-primary font-mono-label-sm uppercase">PHOENIX TACTICAL v4.2.0</span>
+<div class="flex gap-4">
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Network Protocol</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Engagement</a>
+<a class="hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">SLA</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-2">
+<span class="w-2 h-2 bg-tertiary rounded-full"></span>
+                P2P ENCRYPTED
+            </span>
+<span>© 2024 PHOENIX GRID TACTICAL SYSTEMS</span>
+</div>
+</footer>
+<script>
+        // Micro-interactions for the Command Center
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            panel.addEventListener('mouseenter', () => {
+                panel.style.boxShadow = '0 0 20px rgba(0, 229, 255, 0.05)';
+            });
+            panel.addEventListener('mouseleave', () => {
+                panel.style.boxShadow = '';
+            });
+        });
+
+        // Simulating live metric updates
+        setInterval(() => {
+            const metrics = document.querySelectorAll('.font-headline-md');
+            metrics.forEach(metric => {
+                if(metric.innerText.includes('k')) return;
+                let val = parseFloat(metric.innerText);
+                if(!isNaN(val)) {
+                    val += (Math.random() - 0.5) * 0.1;
+                    metric.innerText = val.toFixed(1) + (metric.innerText.includes('%') ? '%' : '');
+                }
+            });
+        }, 3000);
+    </script>
+</body></html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PHOENIX GRID | Infrastructure Monitoring Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30, 41, 59, 0.5);
+        }
+        .data-glow {
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+        }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 229, 255, 0.05) 51%);
+            background-size: 100% 4px;
+        }
+        @keyframes pulse-cyan {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .ai-pulse-anim {
+            animation: pulse-cyan 2s infinite ease-in-out;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .grid-mesh {
+            background-image: radial-gradient(circle, rgba(0, 229, 255, 0.1) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#849396",
+                        "inverse-on-surface": "#2b303e",
+                        "on-tertiary-fixed": "#002108",
+                        "on-surface": "#dee2f5",
+                        "on-error": "#690005",
+                        "on-tertiary-container": "#006727",
+                        "on-primary": "#00363d",
+                        "surface-container-lowest": "#090e1b",
+                        "primary": "#c3f5ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-primary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-surface": "#dee2f5",
+                        "surface-container-high": "#252a38",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-container-low": "#161b29",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline-variant": "#3b494c",
+                        "on-secondary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#3ce36a",
+                        "surface-dim": "#0e1320",
+                        "primary-fixed": "#9cf0ff",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#003912",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary": "#002e6a",
+                        "surface": "#0e1320",
+                        "surface-variant": "#303443",
+                        "on-primary-fixed": "#001f24",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-highest": "#303443",
+                        "surface-bright": "#343948",
+                        "primary-container": "#00e5ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container": "#1a1f2d",
+                        "tertiary-container": "#49ed72",
+                        "error-container": "#93000a",
+                        "on-background": "#dee2f5",
+                        "secondary-container": "#0566d9",
+                        "secondary": "#adc6ff",
+                        "tertiary": "#b1ffb5",
+                        "on-primary-container": "#00626e",
+                        "tertiary-fixed": "#69ff87",
+                        "on-tertiary-fixed-variant": "#00531e",
+                        "inverse-primary": "#006875",
+                        "surface-tint": "#00daf3",
+                        "background": "#0e1320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "margin-mobile": "16px",
+                        "container-gap": "24px",
+                        "unit": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "mono-label-sm": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono-data-md": ["JetBrains Mono"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono-label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "mono-data-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container/30 overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_8px_32px_rgba(0,229,255,0.1)]">
+<div class="flex items-center gap-8">
+<h1 class="font-display-lg text-display-lg tracking-tighter text-primary-container drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]">PHOENIX GRID</h1>
+<div class="hidden md:flex items-center bg-surface-container/50 px-4 py-2 rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-outline mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-mono-label-sm text-primary uppercase w-64" placeholder="QUERY INFRASTRUCTURE ASSET..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-outline">
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded-full"><span class="material-symbols-outlined">network_check</span></button>
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded-full"><span class="material-symbols-outlined">language</span></button>
+<button class="hover:bg-primary/10 hover:text-primary transition-all duration-300 p-2 rounded-full"><span class="material-symbols-outlined">settings</span></button>
+</div>
+<div class="px-4 py-1.5 border border-primary-container/50 bg-primary-container/10 text-primary-container font-mono-label-sm tracking-widest rounded-sm">
+                OPS STATUS: ALPHA
+            </div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-20 h-[calc(100vh-80px)] z-40 flex flex-col w-[260px] bg-surface-container-lowest/80 backdrop-blur-md border-r border-outline-variant/20">
+<div class="p-6 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container/20 border border-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">shield_person</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md text-primary leading-none">PHX-CMD</div>
+<div class="font-mono-label-sm text-mono-label-sm text-outline uppercase tracking-widest">Sector 7G</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-4">
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Command</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Smart Map</span>
+</a>
+<a class="flex items-center gap-4 text-primary-container border-l-4 border-primary-container bg-primary-container/10 py-4 px-6 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Infrastructure</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Mesh Net</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Rescue Ops</span>
+</a>
+<a class="flex items-center gap-4 text-outline hover:text-on-surface py-4 px-6 hover:bg-surface-variant/30 hover:border-l-4 hover:border-outline transition-all duration-200" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-mono-label-sm text-mono-label-sm uppercase tracking-widest">Analytics</span>
+</a>
+</div>
+<div class="p-6 border-t border-outline-variant/10">
+<button class="w-full bg-primary-container text-on-primary-container py-3 font-mono-label-sm uppercase tracking-tighter hover:brightness-110 active:scale-95 transition-all">
+                INITIATE BROADCAST
+            </button>
+<div class="mt-4 flex flex-col gap-2">
+<a class="flex items-center gap-2 text-outline text-mono-label-sm hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">support_agent</span> SUPPORT
+                </a>
+<a class="flex items-center gap-2 text-outline text-mono-label-sm hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">terminal</span> LOGS
+                </a>
+</div>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="ml-[260px] pt-20 h-screen overflow-y-auto grid-mesh">
+<div class="p-margin-desktop space-y-container-gap">
+<!-- Dashboard Top Row: Bento Metrics -->
+<div class="grid grid-cols-12 gap-container-gap">
+<!-- Live Heatmap Card -->
+<div class="col-span-8 h-[400px] glass-panel relative overflow-hidden rounded-lg group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" data-alt="A high-tech digital satellite map of a sprawling urban landscape at night. The map is overlaid with a glowing neon heatmap visualization, where intense cyan and magenta areas represent high-activity infrastructure zones. The overall aesthetic is tactical and futuristic, with dark navy backgrounds and vibrant glowing data markers consistent with an aerospace HUD interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnEBr0dlNWIQ0Ab28WP2-kMavFE1-VjG2d_UQEett4eOtr8pJ-PwmQ2TNtXb7ZhN_IerFxkJs2UhFKY-6ARGPb37MXSZ03B5nq0z_QgRFpmVPVDF-r6_TUG_r5KO6aRz1H7vRY6Kq4_svLxqmlofWCphA-6N-zY8QUKYAxghixcsXb8mx5efBFpf2kJadEYX0wxwgoIsduDdE8zhBz2H5l1RVyjbSY8kTDqA25u34fOT0rgr2uYwbCfrSe1H6WXBRjoSmg5Yz7M5Cy')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute top-4 left-4 z-10 flex gap-2">
+<div class="bg-surface-container-highest/80 backdrop-blur px-3 py-1 rounded border border-primary-container/30 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container ai-pulse-anim"></span>
+<span class="font-mono-label-sm text-primary uppercase">LIVE SAT-FEED: ACTIVE</span>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 z-10">
+<h2 class="font-headline-lg text-headline-lg text-primary-fixed-dim drop-shadow-md">Infrastructure Heatmap</h2>
+<p class="font-mono-data-md text-mono-data-md text-outline">Sector 7G: Anomalous energy signatures detected near Power Station Sigma.</p>
+</div>
+<!-- Coordinates HUD -->
+<div class="absolute top-4 right-4 z-10 font-mono-data-md text-primary/70 text-right">
+<div>LAT: 34.0522° N</div>
+<div>LNG: 118.2437° W</div>
+<div>ALT: 12,450m</div>
+</div>
+</div>
+<!-- Threat Meter / AI Pulse -->
+<div class="col-span-4 h-[400px] glass-panel rounded-lg flex flex-col p-6 space-y-6">
+<div class="flex justify-between items-center">
+<span class="font-mono-label-sm text-outline uppercase tracking-widest">Threat Level Analysis</span>
+<span class="material-symbols-outlined text-primary-container ai-pulse-anim">psychology</span>
+</div>
+<div class="flex-1 flex items-end gap-2 px-4">
+<!-- Vertical Segments Gauge -->
+<div class="flex-1 h-full flex flex-col-reverse gap-1">
+<div class="h-4 bg-tertiary-container/80 rounded-sm"></div>
+<div class="h-4 bg-tertiary-container/80 rounded-sm"></div>
+<div class="h-4 bg-tertiary-container/80 rounded-sm"></div>
+<div class="h-4 bg-tertiary-container/80 rounded-sm"></div>
+<div class="h-4 bg-tertiary-container/40 rounded-sm"></div>
+<div class="h-4 bg-tertiary-container/20 rounded-sm"></div>
+<div class="h-4 bg-tertiary-container/10 rounded-sm"></div>
+</div>
+<div class="flex-1 h-full flex flex-col-reverse gap-1">
+<div class="h-4 bg-error-container/80 rounded-sm"></div>
+<div class="h-4 bg-error-container/80 rounded-sm"></div>
+<div class="h-4 bg-error-container/40 rounded-sm"></div>
+<div class="h-4 bg-outline-variant/10 rounded-sm"></div>
+<div class="h-4 bg-outline-variant/10 rounded-sm"></div>
+<div class="h-4 bg-outline-variant/10 rounded-sm"></div>
+<div class="h-4 bg-outline-variant/10 rounded-sm"></div>
+</div>
+<div class="flex-1 h-full flex flex-col-reverse gap-1">
+<div class="h-4 bg-primary-container/80 rounded-sm"></div>
+<div class="h-4 bg-primary-container/80 rounded-sm"></div>
+<div class="h-4 bg-primary-container/80 rounded-sm"></div>
+<div class="h-4 bg-primary-container/80 rounded-sm"></div>
+<div class="h-4 bg-primary-container/80 rounded-sm"></div>
+<div class="h-4 bg-primary-container/40 rounded-sm"></div>
+<div class="h-4 bg-primary-container/20 rounded-sm"></div>
+</div>
+</div>
+<div class="grid grid-cols-3 text-center">
+<div class="text-mono-label-sm text-tertiary uppercase">Bio</div>
+<div class="text-mono-label-sm text-error uppercase">Sect</div>
+<div class="text-mono-label-sm text-primary uppercase">Net</div>
+</div>
+<div class="bg-surface-variant/30 p-4 rounded border border-outline-variant/20">
+<div class="font-mono-label-sm text-primary mb-1">AI INSIGHT:</div>
+<div class="text-mono-data-md text-on-surface-variant leading-tight">Increased mesh traffic suggests potential bypass attempt in Sub-Sector Delta. Recommendation: Deploy drone reconnaissance.</div>
+</div>
+</div>
+</div>
+<!-- Asset Grid Header -->
+<div class="flex justify-between items-center border-l-4 border-primary-container pl-4">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Infrastructure Asset Grid</h2>
+<p class="font-mono-label-sm text-outline">REAL-TIME TELEMETRY FEED | ALL SECTORS</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2"><span class="status-dot bg-tertiary-container"></span> <span class="text-mono-label-sm uppercase">Operational</span></div>
+<div class="flex items-center gap-2"><span class="status-dot bg-yellow-400"></span> <span class="text-mono-label-sm uppercase">Warning</span></div>
+<div class="flex items-center gap-2"><span class="status-dot bg-error"></span> <span class="text-mono-label-sm uppercase">Critical</span></div>
+<div class="flex items-center gap-2"><span class="status-dot bg-surface-variant"></span> <span class="text-mono-label-sm uppercase">Destroyed</span></div>
+</div>
+</div>
+<!-- Tactical Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Hospital Asset -->
+<div class="glass-panel rounded border-l-4 border-l-tertiary-container p-6 relative overflow-hidden group">
+<div class="scanline absolute inset-0 opacity-10"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="text-mono-label-sm text-outline mb-1">#ASSET-001</div>
+<div class="font-headline-md text-headline-md text-on-surface">Central Medical Hub</div>
+</div>
+<span class="material-symbols-outlined text-tertiary-container text-3xl">local_hospital</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Energy Status</span>
+<span class="text-mono-data-md text-tertiary">98% NOMINAL</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Capacity</span>
+<span class="text-mono-data-md text-on-surface">1,452/2,000</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-mono-data-md text-outline">Uptime</span>
+<span class="text-mono-data-md text-on-surface">342:12:05</span>
+</div>
+</div>
+<div class="mt-6 h-12 flex items-center justify-center border border-tertiary-container/30 bg-tertiary-container/5 rounded group-hover:bg-tertiary-container/10 transition-colors cursor-pointer">
+<span class="text-mono-label-sm text-tertiary tracking-widest uppercase">View Wireframe</span>
+</div>
+</div>
+<!-- Bridge Asset -->
+<div class="glass-panel rounded border-l-4 border-l-error p-6 relative overflow-hidden group">
+<div class="scanline absolute inset-0 opacity-10"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="text-mono-label-sm text-outline mb-1">#ASSET-042</div>
+<div class="font-headline-md text-headline-md text-on-surface">Eastern Span Bridge</div>
+</div>
+<span class="material-symbols-outlined text-error text-3xl">abc</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Structural Integrity</span>
+<span class="text-mono-data-md text-error">42% CRITICAL</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Load Capacity</span>
+<span class="text-mono-data-md text-on-surface">RESTRICTED</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-mono-data-md text-outline">Incident Log</span>
+<span class="text-mono-data-md text-on-surface">STRUCTURAL BREACH</span>
+</div>
+</div>
+<div class="mt-6 h-12 flex items-center justify-center border border-error/30 bg-error/5 rounded group-hover:bg-error/10 transition-colors cursor-pointer">
+<span class="text-mono-label-sm text-error tracking-widest uppercase">Initiate Repair Drone</span>
+</div>
+</div>
+<!-- Power Plant Asset -->
+<div class="glass-panel rounded border-l-4 border-l-yellow-400 p-6 relative overflow-hidden group">
+<div class="scanline absolute inset-0 opacity-10"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="text-mono-label-sm text-outline mb-1">#ASSET-089</div>
+<div class="font-headline-md text-headline-md text-on-surface">Grid-Alpha Generator</div>
+</div>
+<span class="material-symbols-outlined text-yellow-400 text-3xl">bolt</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Output</span>
+<span class="text-mono-data-md text-yellow-400">7.2GW WARNING</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Core Temp</span>
+<span class="text-mono-data-md text-yellow-400">842°C</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-mono-data-md text-outline">Cooling Sys</span>
+<span class="text-mono-data-md text-on-surface">PUMP 2 FAIL</span>
+</div>
+</div>
+<div class="mt-6 h-12 flex items-center justify-center border border-yellow-400/30 bg-yellow-400/5 rounded group-hover:bg-yellow-400/10 transition-colors cursor-pointer">
+<span class="text-mono-label-sm text-yellow-400 tracking-widest uppercase">Manage Bypass</span>
+</div>
+</div>
+<!-- Comm Tower -->
+<div class="glass-panel rounded border-l-4 border-l-surface-variant p-6 relative overflow-hidden group">
+<div class="scanline absolute inset-0 opacity-10"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="text-mono-label-sm text-outline mb-1">#ASSET-115</div>
+<div class="font-headline-md text-headline-md text-on-surface opacity-50">Northern Comm Array</div>
+</div>
+<span class="material-symbols-outlined text-surface-variant text-3xl">settings_input_antenna</span>
+</div>
+<div class="space-y-4 opacity-50">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Signal Strength</span>
+<span class="text-mono-data-md text-on-surface">ZERO</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Last Contact</span>
+<span class="text-mono-data-md text-on-surface">12H 44M AGO</span>
+</div>
+</div>
+<div class="mt-6 h-12 flex items-center justify-center border border-outline-variant/30 bg-outline-variant/5 rounded group-hover:bg-outline-variant/10 transition-colors cursor-pointer">
+<span class="text-mono-label-sm text-outline tracking-widest uppercase">Asset Destroyed</span>
+</div>
+</div>
+<!-- Water Facility -->
+<div class="glass-panel rounded border-l-4 border-l-tertiary-container p-6 relative overflow-hidden group">
+<div class="scanline absolute inset-0 opacity-10"></div>
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="text-mono-label-sm text-outline mb-1">#ASSET-033</div>
+<div class="font-headline-md text-headline-md text-on-surface">Aqueduct System 4</div>
+</div>
+<span class="material-symbols-outlined text-tertiary-container text-3xl">water_drop</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Flow Rate</span>
+<span class="text-mono-data-md text-tertiary">400k L/S</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-mono-data-md text-outline">Purity</span>
+<span class="text-mono-data-md text-tertiary">99.9%</span>
+</div>
+</div>
+<div class="mt-6 h-12 flex items-center justify-center border border-tertiary-container/30 bg-tertiary-container/5 rounded group-hover:bg-tertiary-container/10 transition-colors cursor-pointer">
+<span class="text-mono-label-sm text-tertiary tracking-widest uppercase">View Wireframe</span>
+</div>
+</div>
+<!-- 3D Visualization Placeholder Widget -->
+<div class="glass-panel rounded p-6 flex flex-col items-center justify-center space-y-4 text-center border border-dashed border-outline-variant/50 hover:border-primary-container transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary/50 group-hover:text-primary text-5xl ai-pulse-anim">view_in_ar</span>
+<div>
+<div class="font-mono-label-sm text-primary uppercase">Initialize AR-HUD</div>
+<div class="text-mono-data-md text-outline">Projection of Sector 7G Sub-Structures</div>
+</div>
+</div>
+</div>
+<!-- 3D Architectural Detail Section (Asymmetric Layout) -->
+<div class="grid grid-cols-12 gap-container-gap pb-24">
+<div class="col-span-12 lg:col-span-4 glass-panel p-6 rounded-lg space-y-6">
+<h3 class="font-headline-md text-headline-md text-primary tracking-tight">ASSET WIREFRAME: PHX-GEN-01</h3>
+<div class="relative aspect-square bg-surface-container-low rounded border border-outline-variant/20 overflow-hidden">
+<div class="absolute inset-0 flex items-center justify-center">
+<img class="opacity-30 grayscale contrast-150 mix-blend-screen w-full h-full object-cover" data-alt="A detailed 3D architectural wireframe of a complex industrial power plant structure. The wireframe consists of thin, glowing cyan lines on a deep black background, showing the internal machinery and structural supports. The image is designed to look like a high-tech holographic CAD projection, with floating data points and callout labels in a tactical aerospace UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvVVyUFoH-F-CgutQRX3p4sChKDdK0OdDvbUN7SRw1YHf5PDlIuORU8I1sWB1R7M8I8IJD9xMP7Vo0PA1lOrkkTPGx8F2OkIEQP_dIMSVnHqrAebffHlTLSpJk0sOXNmYFFsVwcxHPFJxYAq9Xzx8sLr9GdI8rVDd1xrA7z2lKofwcEhT4c8E-6TO3oz_E1Qz1MG7i4kN5aMh2BDKw8lUH1Dn1huqF_W2vx7ep7PZnHUhcsh1lVDCNR0OdQs8ULBzW7QbrTQtFZTwU"/>
+<div class="absolute inset-0 border-[2px] border-primary/20 animate-pulse"></div>
+</div>
+<div class="absolute bottom-4 left-4 font-mono-data-md text-primary/80">CORE SECTION AA-4</div>
+</div>
+<div class="space-y-4">
+<div class="p-4 bg-surface-container/30 rounded border border-outline-variant/10">
+<div class="text-mono-label-sm text-outline uppercase mb-2">Component Analysis</div>
+<div class="flex items-center justify-between text-mono-data-md">
+<span>Turbine Rotation</span>
+<span class="text-tertiary">3600 RPM</span>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-8 glass-panel p-6 rounded-lg overflow-hidden relative">
+<div class="scanline absolute inset-0 opacity-5"></div>
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline-md text-headline-md text-on-surface">Global Connectivity Node</h3>
+<div class="flex gap-2">
+<button class="bg-surface-variant/30 text-outline p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined">zoom_in</span></button>
+<button class="bg-surface-variant/30 text-outline p-2 hover:text-primary transition-colors"><span class="material-symbols-outlined">zoom_out</span></button>
+<button class="bg-primary-container text-on-primary-container px-4 font-mono-label-sm">EXPORT</button>
+</div>
+</div>
+<div class="h-[400px] w-full bg-surface-container-low rounded border border-outline-variant/20 relative group">
+<img class="w-full h-full object-cover opacity-40 mix-blend-lighten" data-alt="A digital representation of global network connections, featuring a spherical earth composed of glowing blue and white dots. Arcing lines of light connect major metropolitan hubs across the continents, representing real-time communication infrastructure. The scene is set against the deep darkness of space, with subtle data-glow effects and a tactical, glassmorphic UI framing the entire visualization." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdRRRE4CTRo5gualGR4xCmSVwayO9jw_y87ZoFS82KPOEHauh5Judu104UI9UCYcnlk0801jrriNN_Vn1Y8FUsDM9Sd8z4fETC1MqZtEN4z_v7f_XbPNJ7YnFLeEJFXukoasz271Pp9yqTYM-FJPZYW_6P0lvxQspZzy8Mm2_Sdhfp2ohZFzTf1Q0XSnIeIE-GzTUX6BwzlqK7YHHrmXLX0gGwjEUlyNYBT6Q4Msfx-ntp768aI8CUQD5q18xXYYYCnRZJw2f836GK"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="text-center">
+<span class="material-symbols-outlined text-primary-container text-6xl animate-ping absolute opacity-20">language</span>
+<div class="font-mono-label-sm text-primary drop-shadow-glow">SYSTEM SYNCHRONIZED</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full py-4 px-margin-desktop flex justify-between items-center bg-surface-dim border-t border-outline-variant/10 z-50">
+<div class="font-mono-data-md text-mono-data-md text-outline">
+            © 2024 PHOENIX GRID TACTICAL SYSTEMS. ENCRYPTED P2P CHANNEL ACTIVE.
+        </div>
+<div class="flex gap-8">
+<a class="font-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Network Protocol</a>
+<a class="font-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">Terms of Engagement</a>
+<a class="font-mono-data-md text-outline hover:text-tertiary transition-colors opacity-80 hover:opacity-100" href="#">SLA</a>
+</div>
+</footer>
+<script>
+        // Atmospheric Micro-interactions
+        document.querySelectorAll('.glass-panel').forEach(panel => {
+            panel.addEventListener('mousemove', (e) => {
+                const rect = panel.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                panel.style.setProperty('--mouse-x', `${x}px`);
+                panel.style.setProperty('--mouse-y', `${y}px`);
+                
+                // Subtle shine effect logic could be added here
+            });
+        });
+
+        // Simulating data updates
+        setInterval(() => {
+            const dataElements = document.querySelectorAll('.text-tertiary, .text-error, .text-yellow-400');
+            dataElements.forEach(el => {
+                if(Math.random() > 0.8) {
+                    el.classList.add('brightness-150');
+                    setTimeout(() => el.classList.remove('brightness-150'), 150);
+                }
+            });
+        }, 3000);
+    </script>
+</body></html>
